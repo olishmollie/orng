@@ -23,6 +23,7 @@ class Lexer {
     Token lex_paren();
 
   public:
+    Lexer(char *source);
     Lexer(std::string source);
     Token lex();
     bool eof();

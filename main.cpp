@@ -1,26 +1,27 @@
 #include "Lexer.h"
 
 #include <iostream>
+#include <readline/history.h>
+#include <readline/readline.h>
 
 using namespace std;
 
 int main() {
     cout << "ORNG" << endl;
 
-    while (true) {
-        cout << "=> ";
+    char *buf;
+    while ((buf = readline(">> ")) != nullptr) {
 
-        string buffer;
-        getline(cin, buffer);
+        if (strlen(buf) > 0) {
+            add_history(buf);
+        }
 
-        if (buffer.length() == 0) {
-            break;
-        } // eof
-
-        Lexer lexer(buffer);
+        Lexer lexer(buf);
         while (!lexer.eof()) {
             cout << lexer.lex() << endl;
         }
+
+        free(buf);
     }
 
     cout << endl;

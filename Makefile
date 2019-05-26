@@ -1,4 +1,6 @@
 FILES=*.cpp
+CFLAGS=-std=c++17
+LFLAGS=-ledit
 
 all:
-	g++ -std=c++17 $(FILES)
+	g++ $(CFLAGS) $(FILES) $(LFLAGS)

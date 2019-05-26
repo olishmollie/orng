@@ -3,6 +3,11 @@
 #include <ctype.h>
 #include <vector>
 
+Lexer::Lexer(char *source) {
+    this->source = static_cast<std::string>(source);
+    start = end = 0;
+}
+
 Lexer::Lexer(std::string source) {
     this->source = source;
     start = end = 0;
