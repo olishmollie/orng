@@ -25,8 +25,6 @@ char Lexer::prev_char() {
 }
 
 Token Lexer::lex() {
-    int position = end;
-
     char c;
     while ((c = peek_char())) {
         switch (c) {
@@ -58,8 +56,12 @@ Token Lexer::lex() {
         case '!':
         case '@':
         case '/':
+        case '?':
         case '<':
             return lex_operator();
+        default:
+            fprintf(stderr, "lexical error: unknown token '%c'", c);
+            exit(1);
         }
     }
 
@@ -83,7 +85,7 @@ Token Lexer::lex_scalar() {
     }
     prev_char();
 
-    return Token(TScalar, buf, position);
+    return Token(TokScalar, buf, position);
 }
 
 Token Lexer::lex_operator() {
@@ -113,6 +115,14 @@ Token Lexer::lex_operator() {
     case '/':
         lexeme = "/";
         break;
+    case '?':
+        if (peek_char() == '.') {
+            next_char();
+            lexeme = "?.";
+        } else {
+            lexeme = "?";
+        }
+        break;
     case '<':
         if (peek_char() == '-') {
             next_char();
@@ -123,7 +133,7 @@ Token Lexer::lex_operator() {
         break;
     }
 
-    return Token(TOperator, lexeme, position);
+    return Token(TokOperator, lexeme, position);
 }
 
 Token Lexer::lex_paren() {
@@ -134,19 +144,19 @@ Token Lexer::lex_paren() {
     char c = next_char();
     switch (c) {
     case '[':
-        type = TLBracket;
+        type = TokLeftBracket;
         lexeme = "[";
         break;
     case ']':
-        type = TRBracket;
+        type = TokRightBracket;
         lexeme = "]";
         break;
     case '(':
-        type = TLParen;
+        type = TokLeftParen;
         lexeme = "(";
         break;
     case ')':
-        type = TRParen;
+        type = TokRightParen;
         lexeme = ")";
     }
 
