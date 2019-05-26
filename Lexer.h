@@ -20,6 +20,7 @@ class Lexer {
 
     Token lex_scalar();
     Token lex_operator();
+    Token lex_paren();
 
   public:
     Lexer(std::string source);

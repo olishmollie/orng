@@ -35,6 +35,11 @@ Token Lexer::lex() {
         case '\t':
             ignore_char();
             break;
+        case '[':
+        case ']':
+        case '(':
+        case ')':
+            return lex_paren();
         case '0':
         case '1':
         case '2':
@@ -83,7 +88,7 @@ Token Lexer::lex_scalar() {
 
 Token Lexer::lex_operator() {
     int position = end + 1;
-    std::string buf, lexeme;
+    std::string lexeme;
 
     char c = next_char();
     switch (c) {
@@ -119,4 +124,31 @@ Token Lexer::lex_operator() {
     }
 
     return Token(TOperator, lexeme, position);
+}
+
+Token Lexer::lex_paren() {
+    int position = end + 1;
+    TokenType type;
+    std::string lexeme;
+
+    char c = next_char();
+    switch (c) {
+    case '[':
+        type = TLBracket;
+        lexeme = "[";
+        break;
+    case ']':
+        type = TRBracket;
+        lexeme = "]";
+        break;
+    case '(':
+        type = TLParen;
+        lexeme = "(";
+        break;
+    case ')':
+        type = TRParen;
+        lexeme = ")";
+    }
+
+    return Token(type, lexeme, position);
 }

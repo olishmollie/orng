@@ -7,7 +7,15 @@
 #include <string>
 #include <vector>
 
-enum TokenType { Eof = -1, TScalar, TOperator };
+enum TokenType {
+    Eof = -1,
+    TScalar,
+    TOperator,
+    TLBracket,
+    TRBracket,
+    TLParen,
+    TRParen
+};
 
 struct Token {
     TokenType type;
@@ -25,6 +33,14 @@ struct Token {
             return "Scalar";
         case TOperator:
             return "Operator";
+        case TLBracket:
+            return "LBracket";
+        case TRBracket:
+            return "RBracket";
+        case TLParen:
+            return "LParen";
+        case TRParen:
+            return "RParen";
         }
     }
 
