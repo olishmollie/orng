@@ -27,6 +27,8 @@ class Lexer {
     char peek_char();
     char prev_char();
 
+    std::string lex_integer();
+
     Token lex_scalar();
     Token lex_operator();
     Token lex_paren();

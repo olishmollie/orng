@@ -17,6 +17,16 @@ int main() {
             add_history(buf);
         }
 
+        // Lexer lexer(buf);
+        // while (!lexer.eof()) {
+        //     try {
+        //         cout << lexer.lex() << endl;
+        //     } catch (OrngError &e) {
+        //         cout << e.caused_by() << endl;
+        //         break;
+        //     }
+        // }
+
         try {
             Parser parser(buf);
             Ast *ast = parser.parse();

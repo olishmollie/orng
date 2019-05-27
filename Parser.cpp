@@ -47,6 +47,7 @@ Ast *Parser::operand(bool paren_ok) {
         left = new UnaryAst(tok, expr(paren_ok));
         break;
     case TokInteger:
+    case TokComplex:
     case TokLeftParen:
         left = atom();
         break;
@@ -64,6 +65,7 @@ Ast *Parser::atom() {
     Token tok = curtok;
     switch (tok.type) {
     case TokInteger:
+    case TokComplex:
         return vector();
     case TokLeftParen:
         next();
@@ -80,19 +82,28 @@ Ast *Parser::atom() {
     return inner;
 }
 
+static bool is_number_type(Token tok) {
+    return tok.type == TokInteger || tok.type == TokComplex;
+}
+
+std::complex<long> Parser::parse_complex() {}
+
+long Parser::parse_integer() {
+    size_t endptr;
+    return std::stol(curtok.lexeme, &endptr);
+}
+
 // vector
 // scalar
 Ast *Parser::vector() {
     Token tok = curtok;
     std::vector<long> *vec = new std::vector<long>();
-    while (curtok.type == TokInteger) {
-        size_t endptr;
-        long val = std::stol(curtok.lexeme, &endptr);
-        // TODO: figure this out
-        // if (endptr) {
-        //     throw "invalid number syntax";
-        // }
-        vec->push_back(val);
+    while (is_number_type(curtok)) {
+        if (curtok.type == TokInteger) {
+            vec->push_back(parse_integer());
+        } else if (curtok.type == TokComplex) {
+            // vec->push_back(parse_complex());
+        }
         next();
     }
 

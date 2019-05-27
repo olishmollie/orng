@@ -5,6 +5,8 @@
 #include "Error.h"
 #include "Lexer.h"
 
+#include <complex>
+
 class ParseError : public OrngError {
     std::string msg;
     unsigned int column;
@@ -22,6 +24,9 @@ class Parser {
 
     void next();
     Token peek();
+
+    std::complex<long> parse_complex();
+    long parse_integer();
 
     Ast *expr(bool paren_ok);
     Ast *operand(bool paren_ok);

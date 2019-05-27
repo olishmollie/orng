@@ -11,7 +11,7 @@
 enum TokenType {
     Eof = -1,
     TokInteger,
-    TokRational,
+    TokComplex,
     TokOperator,
     TokLeftBracket,
     TokRightBracket,
@@ -33,8 +33,8 @@ struct Token {
             return "Eof";
         case TokInteger:
             return "Scalar";
-        case TokRational:
-            return "Rational";
+        case TokComplex:
+            return "Complex";
         case TokOperator:
             return "Operator";
         case TokLeftBracket:

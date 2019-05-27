@@ -70,7 +70,7 @@ Token Lexer::lex() {
             continue;
         } else if (is_paren(c)) {
             return lex_paren();
-        } else if (is_digit(c)) {
+        } else if (c == '_' || is_digit(c)) {
             return lex_scalar();
         } else if (is_op(c)) {
             return lex_operator();
@@ -87,23 +87,54 @@ bool Lexer::eof() {
     return end > source.length();
 }
 
-Token Lexer::lex_scalar() {
-    int position = end + 1;
-
+std::string Lexer::lex_integer() {
     std::string buf;
 
     char c = next_char();
+    if (c == '_') {
+        buf.append(1, '-'); // for stol later
+        c = next_char();
+    }
+
+    if (!is_digit(c)) {
+        std::cout << "checking for digit: c = " << c << std::endl;
+        throw LexicalError("invalid number syntax", end);
+    }
+
     while (!eof() && isdigit(c)) {
         buf.append(1, c);
         c = next_char();
     }
-    c = prev_char();
+    prev_char();
 
-    if (!eof() && !is_delim(c)) {
-        throw LexicalError("invalid number syntax", end + 1);
+    return buf;
+}
+
+Token Lexer::lex_scalar() {
+    int position = end + 1;
+
+    std::string buf = lex_integer();
+    bool complex = false;
+
+    char c = next_char();
+
+    // complex number
+    if (!eof() && c == 'j') {
+        complex = true;
+        buf.append(1, c);
+        buf.append(lex_integer());
+        c = next_char();
     }
 
-    return Token(TokInteger, buf, position);
+    if (!eof() && !is_delim(c)) {
+        throw LexicalError("invalid number syntax", end);
+    }
+
+    // prepare for next call to lex()
+    prev_char();
+
+    return complex ? Token(TokComplex, buf, position)
+                   : Token(TokInteger, buf, position);
 }
 
 Token Lexer::lex_operator() {
