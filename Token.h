@@ -4,6 +4,7 @@
 #include "Value.h"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -44,15 +45,21 @@ struct Token {
         }
     }
 
+    std::string to_string() const {
+        std::ostringstream os;
+        os << this;
+        return os.str();
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const Token &t) {
         switch (t.type) {
         case Eof:
-            os << "<Token type: " << t.type_name()
-               << ", position: " << t.position << ">";
+            os << "<Token{type: " << t.type_name()
+               << ", position: " << t.position << "}>";
             break;
         default:
-            os << "<Token type: " << t.type_name() << ", lexeme: '" << t.lexeme
-               << "', position: " << t.position << ">";
+            os << "<Token{type: " << t.type_name() << ", lexeme: '" << t.lexeme
+               << "', position: " << t.position << "}>";
             break;
         }
         return os;

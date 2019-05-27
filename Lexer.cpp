@@ -18,7 +18,11 @@ void Lexer::ignore_char() {
 }
 
 char Lexer::next_char() {
-    return source[end++];
+    char next{source[end]};
+    if (!eof()) {
+        end++;
+    }
+    return next;
 }
 
 char Lexer::peek_char() {
@@ -65,7 +69,7 @@ Token Lexer::lex() {
         case '<':
             return lex_operator();
         default:
-            fprintf(stderr, "lexical error: unknown token '%c'", c);
+            fprintf(stderr, "lexical error: unknown character '%c'", c);
             exit(1);
         }
     }

@@ -1,4 +1,5 @@
 #include "Lexer.h"
+#include "Parser.h"
 
 #include <iostream>
 #include <readline/history.h>
@@ -16,10 +17,20 @@ int main() {
             add_history(buf);
         }
 
-        Lexer lexer(buf);
-        while (!lexer.eof()) {
-            cout << lexer.lex() << endl;
+
+        Parser parser(buf);
+        try {
+            Ast *ast = parser.parse();
+            cout << ast->to_string() << endl;
+            delete ast;
+        } catch (const char * const s) {
+            cout << s << endl;
         }
+
+        // Lexer lexer(buf);
+        // while (!lexer.eof()) {
+        //     cout << lexer.lex() << endl;
+        // }
 
         free(buf);
     }

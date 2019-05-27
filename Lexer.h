@@ -8,7 +8,6 @@
 #include <vector>
 
 class Lexer {
-  private:
     int start;
     int end;
     std::string source;
