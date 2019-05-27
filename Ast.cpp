@@ -4,11 +4,13 @@
 
 #define INDENT "    "
 
-LiteralAst::LiteralAst(Token root, long n) : root{root}, scalar{n} {
+LiteralAst::LiteralAst(Token root_, Number scalar_)
+    : root{root_}, scalar{scalar_} {
     is_vector = false;
 }
 
-LiteralAst::LiteralAst(Token root, std::vector<long> *vec) : root{root}, vec{vec} {
+LiteralAst::LiteralAst(Token root_, std::vector<Number> *vec_)
+    : root{root_}, vec{vec_} {
     is_vector = true;
 }
 

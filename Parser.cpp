@@ -1,13 +1,21 @@
 #include "Parser.h"
 
+#include <complex>
+#include <iostream>
 #include <sstream>
 #include <vector>
+
+ParseError::ParseError(std::string msg_, unsigned int column_)
+    : msg{msg_}, column{column_} {}
 
 std::string ParseError::caused_by() {
     std::ostringstream os;
     os << "parse error: " << msg << " (column: " << column << ")";
     return os.str();
 }
+
+Parser::Parser(char *source)
+    : lexer{Lexer{source}}, curtok{lexer.lex()}, peektok{lexer.lex()} {}
 
 void Parser::next() {
     curtok = peektok;
@@ -86,9 +94,22 @@ static bool is_number_type(Token tok) {
     return tok.type == TokInteger || tok.type == TokComplex;
 }
 
-std::complex<long> Parser::parse_complex() {}
+Number Parser::parse_complex() {
+    std::istringstream is(curtok.lexeme);
+    std::string buf;
 
-long Parser::parse_integer() {
+    long double re;
+    long double im;
+
+    std::getline(is, buf, 'j');
+    re = stold(buf, nullptr);
+    std::getline(is, buf);
+    im = stold(buf, nullptr);
+
+    return std::complex<long double>(re, im);
+}
+
+Number Parser::parse_integer() {
     size_t endptr;
     return std::stol(curtok.lexeme, &endptr);
 }
@@ -97,12 +118,12 @@ long Parser::parse_integer() {
 // scalar
 Ast *Parser::vector() {
     Token tok = curtok;
-    std::vector<long> *vec = new std::vector<long>();
+    std::vector<Number> *vec = new std::vector<Number>();
     while (is_number_type(curtok)) {
         if (curtok.type == TokInteger) {
             vec->push_back(parse_integer());
         } else if (curtok.type == TokComplex) {
-            // vec->push_back(parse_complex());
+            vec->push_back(parse_complex());
         }
         next();
     }

@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include "Number.h"
 #include "Token.h"
 
 #include <vector>
@@ -15,15 +16,15 @@ class LiteralAst : public Ast {
     Token root;
     bool is_vector;
     union {
-        std::vector<long> *vec;
-        long scalar;
+        Number scalar;
+        std::vector<Number> *vec;
     };
 
     std::string to_string(int depth = 0);
 
   public:
-    LiteralAst(Token root, long scalar);
-    LiteralAst(Token root, std::vector<long> *vec);
+    LiteralAst(Token root, Number);
+    LiteralAst(Token root, std::vector<Number> *vec);
     ~LiteralAst();
 };
 

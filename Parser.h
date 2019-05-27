@@ -5,15 +5,12 @@
 #include "Error.h"
 #include "Lexer.h"
 
-#include <complex>
-
 class ParseError : public OrngError {
     std::string msg;
     unsigned int column;
 
   public:
-    ParseError(std::string msg, unsigned int column)
-        : msg{msg}, column{column} {}
+    ParseError(std::string msg, unsigned int column);
     std::string caused_by();
 };
 
@@ -25,8 +22,8 @@ class Parser {
     void next();
     Token peek();
 
-    std::complex<long> parse_complex();
-    long parse_integer();
+    Number parse_complex();
+    Number parse_integer();
 
     Ast *expr(bool paren_ok);
     Ast *operand(bool paren_ok);
@@ -34,8 +31,7 @@ class Parser {
     Ast *vector();
 
   public:
-    Parser(char *source)
-        : lexer{Lexer{source}}, curtok{lexer.lex()}, peektok{lexer.lex()} {}
+    Parser(char *source);
 
     Ast *parse();
 };

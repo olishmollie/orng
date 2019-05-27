@@ -12,8 +12,7 @@ class LexicalError : public OrngError {
     unsigned int column;
 
   public:
-    LexicalError(std::string msg, unsigned int column)
-        : msg{msg}, column{column} {}
+    LexicalError(std::string msg, unsigned int column);
     std::string caused_by();
 };
 

@@ -1,7 +1,11 @@
 #include "Lexer.h"
 
 #include <ctype.h>
+#include <sstream>
 #include <vector>
+
+LexicalError::LexicalError(std::string msg_, unsigned int column_)
+    : msg{msg_}, column{column_} {}
 
 std::string LexicalError::caused_by() {
     std::ostringstream os;
