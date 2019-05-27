@@ -20,7 +20,7 @@ struct Value {
 
     Value(const Value &val);
 
-    ~Value() {};
+    ~Value(){};
 };
 
 #endif

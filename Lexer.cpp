@@ -3,6 +3,12 @@
 #include <ctype.h>
 #include <vector>
 
+std::string LexicalError::caused_by() {
+    std::ostringstream os;
+    os << "lexical error: " << msg << " (column: " << column << ")";
+    return os.str();
+}
+
 Lexer::Lexer(char *source) {
     this->source = static_cast<std::string>(source);
     start = end = 0;
@@ -33,45 +39,43 @@ char Lexer::prev_char() {
     return source[--end];
 }
 
+static bool is_space(char c) {
+    return c == ' ' || c == '\n' || c == '\t';
+}
+
+static bool is_paren(char c) {
+    return c == '[' || c == ']' || c == '(' || c == ')';
+}
+
+static bool is_op(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '%' || c == '!' ||
+           c == '@' || c == '/' || c == '?' || c == '<';
+}
+
+static bool is_delim(char c) {
+    return c == ' ' || c == '\n' || c == '_' || c == '(' || c == ')' ||
+           c == '[' || c == ']' || c == '\0' || is_op(c);
+}
+
+static bool is_digit(char c) {
+    return c >= '0' && c <= '9';
+}
+
 Token Lexer::lex() {
     char c;
+
     while ((c = peek_char())) {
-        switch (c) {
-        case ' ':
-        case '\n':
-        case '\t':
+        if (is_space(c)) {
             ignore_char();
-            break;
-        case '[':
-        case ']':
-        case '(':
-        case ')':
+            continue;
+        } else if (is_paren(c)) {
             return lex_paren();
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
+        } else if (is_digit(c)) {
             return lex_scalar();
-        case '+':
-        case '-':
-        case '*':
-        case '%':
-        case '!':
-        case '@':
-        case '/':
-        case '?':
-        case '<':
+        } else if (is_op(c)) {
             return lex_operator();
-        default:
-            fprintf(stderr, "lexical error: unknown character '%c'", c);
-            exit(1);
         }
+        throw LexicalError("unknown character", end + 1);
     }
 
     next_char();
@@ -85,6 +89,7 @@ bool Lexer::eof() {
 
 Token Lexer::lex_scalar() {
     int position = end + 1;
+
     std::string buf;
 
     char c = next_char();
@@ -92,9 +97,13 @@ Token Lexer::lex_scalar() {
         buf.append(1, c);
         c = next_char();
     }
-    prev_char();
+    c = prev_char();
 
-    return Token(TokScalar, buf, position);
+    if (!eof() && !is_delim(c)) {
+        throw LexicalError("invalid number syntax", end + 1);
+    }
+
+    return Token(TokInteger, buf, position);
 }
 
 Token Lexer::lex_operator() {

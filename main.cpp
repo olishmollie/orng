@@ -17,13 +17,13 @@ int main() {
             add_history(buf);
         }
 
-        Parser parser(buf);
         try {
+            Parser parser(buf);
             Ast *ast = parser.parse();
             cout << ast->to_string() << endl;
             delete ast;
-        } catch (ParseError err) {
-            cout << err.caused_by() << endl;
+        } catch (OrngError &e) {
+            cout << e.caused_by() << endl;
         }
 
         free(buf);

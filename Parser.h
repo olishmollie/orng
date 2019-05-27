@@ -2,14 +2,16 @@
 #define PARSER_H
 
 #include "Ast.h"
+#include "Error.h"
 #include "Lexer.h"
 
-class ParseError : public std::exception {
-  std::string msg;
-  unsigned int column;
+class ParseError : public OrngError {
+    std::string msg;
+    unsigned int column;
 
   public:
-    ParseError(std::string msg, unsigned int column) : msg{msg}, column{column} {}
+    ParseError(std::string msg, unsigned int column)
+        : msg{msg}, column{column} {}
     std::string caused_by();
 };
 

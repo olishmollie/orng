@@ -10,7 +10,8 @@
 
 enum TokenType {
     Eof = -1,
-    TokScalar,
+    TokInteger,
+    TokRational,
     TokOperator,
     TokLeftBracket,
     TokRightBracket,
@@ -30,8 +31,10 @@ struct Token {
         switch (type) {
         case Eof:
             return "Eof";
-        case TokScalar:
+        case TokInteger:
             return "Scalar";
+        case TokRational:
+            return "Rational";
         case TokOperator:
             return "Operator";
         case TokLeftBracket:

@@ -5,7 +5,7 @@
 
 std::string ParseError::caused_by() {
     std::ostringstream os;
-    os << "parse error: " << msg << "(column: " << column << ")";
+    os << "parse error: " << msg << " (column: " << column << ")";
     return os.str();
 }
 
@@ -46,7 +46,7 @@ Ast *Parser::operand(bool paren_ok) {
         next();
         left = new UnaryAst(tok, expr(paren_ok));
         break;
-    case TokScalar:
+    case TokInteger:
     case TokLeftParen:
         left = atom();
         break;
@@ -63,7 +63,7 @@ Ast *Parser::atom() {
     Ast *inner;
     Token tok = curtok;
     switch (tok.type) {
-    case TokScalar:
+    case TokInteger:
         return vector();
     case TokLeftParen:
         next();
@@ -85,7 +85,7 @@ Ast *Parser::atom() {
 Ast *Parser::vector() {
     Token tok = curtok;
     std::vector<long> *vec = new std::vector<long>();
-    while (curtok.type == TokScalar) {
+    while (curtok.type == TokInteger) {
         size_t endptr;
         long val = std::stol(curtok.lexeme, &endptr);
         // TODO: figure this out
