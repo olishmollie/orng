@@ -1,6 +1,13 @@
 #include "Parser.h"
 
+#include <sstream>
 #include <vector>
+
+std::string ParseError::caused_by() {
+    std::ostringstream os;
+    os << "parse error: " << msg << "(column: " << column << ")";
+    return os.str();
+}
 
 void Parser::next() {
     curtok = peektok;
@@ -8,40 +15,43 @@ void Parser::next() {
 }
 
 Ast *Parser::parse() {
-    return expr();
+    return expr(false);
 }
 
-Ast *Parser::expr() {
-    Ast *left = operand();
+Ast *Parser::expr(bool paren_ok) {
+    Ast *left = operand(paren_ok);
     Token tok = curtok;
     switch (tok.type) {
     case Eof:
     case TokRightParen:
+        if (!paren_ok && tok.type == TokRightParen) {
+            throw ParseError("unexpected ')'", curtok.position);
+        }
         return left;
     case TokOperator:
         next();
-        return new BinaryAst(tok, left, expr());
+        return new BinaryAst(tok, left, expr(paren_ok));
     default:
-        throw "expr(): unexpected token";
+        throw ParseError("unexpected token", curtok.position);
     }
 }
 
 // number
 // vector
-Ast *Parser::operand() {
+Ast *Parser::operand(bool paren_ok) {
     Ast *left;
     Token tok = curtok;
     switch (tok.type) {
     case TokOperator:
         next();
-        left = new UnaryAst(tok, expr());
+        left = new UnaryAst(tok, expr(paren_ok));
         break;
     case TokScalar:
     case TokLeftParen:
         left = atom();
         break;
     default:
-        throw "operand(): unknown token type";
+        throw ParseError("unexpected token", tok.position);
     }
 
     return left;
@@ -57,14 +67,14 @@ Ast *Parser::atom() {
         return vector();
     case TokLeftParen:
         next();
-        inner = expr();
+        inner = expr(true);
         if (curtok.type != TokRightParen) {
-            throw "expected ')'";
+            throw ParseError("expected ')'", curtok.position);
         }
         next();
         break;
     default:
-        throw "atom(): unknown token type";
+        throw ParseError("unknown token type", curtok.position);
     }
 
     return inner;

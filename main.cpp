@@ -17,20 +17,14 @@ int main() {
             add_history(buf);
         }
 
-
         Parser parser(buf);
         try {
             Ast *ast = parser.parse();
             cout << ast->to_string() << endl;
             delete ast;
-        } catch (const char * const s) {
-            cout << s << endl;
+        } catch (ParseError err) {
+            cout << err.caused_by() << endl;
         }
-
-        // Lexer lexer(buf);
-        // while (!lexer.eof()) {
-        //     cout << lexer.lex() << endl;
-        // }
 
         free(buf);
     }

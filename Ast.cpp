@@ -53,7 +53,7 @@ std::string UnaryAst::to_string(int depth) {
 
 UnaryAst::~UnaryAst() {
     if (next) {
-        next->~Ast();
+        delete next;
     }
 }
 
@@ -73,9 +73,9 @@ std::string BinaryAst::to_string(int depth) {
 
 BinaryAst::~BinaryAst() {
     if (left) {
-        left->~Ast();
+        delete left;
     }
     if (right) {
-        right->~Ast();
+        delete right;
     }
 }

@@ -4,6 +4,15 @@
 #include "Ast.h"
 #include "Lexer.h"
 
+class ParseError : public std::exception {
+  std::string msg;
+  unsigned int column;
+
+  public:
+    ParseError(std::string msg, unsigned int column) : msg{msg}, column{column} {}
+    std::string caused_by();
+};
+
 class Parser {
     Lexer lexer;
     Token curtok;
@@ -12,8 +21,8 @@ class Parser {
     void next();
     Token peek();
 
-    Ast *expr();
-    Ast *operand();
+    Ast *expr(bool paren_ok);
+    Ast *operand(bool paren_ok);
     Ast *atom();
     Ast *vector();
 
