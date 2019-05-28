@@ -22,8 +22,9 @@ class Parser {
     void next();
     Token peek();
 
-    Number parse_complex();
     Number parse_integer();
+    Number parse_real();
+    Number parse_complex();
 
     Ast *expr(bool paren_ok);
     Ast *operand(bool paren_ok);

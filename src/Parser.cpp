@@ -55,6 +55,7 @@ Ast *Parser::operand(bool paren_ok) {
         left = new UnaryAst(tok, expr(paren_ok));
         break;
     case TokInteger:
+    case TokReal:
     case TokComplex:
     case TokLeftParen:
         left = atom();
@@ -73,6 +74,7 @@ Ast *Parser::atom() {
     Token tok = curtok;
     switch (tok.type) {
     case TokInteger:
+    case TokReal:
     case TokComplex:
         return vector();
     case TokLeftParen:
@@ -91,7 +93,17 @@ Ast *Parser::atom() {
 }
 
 static bool is_number_type(Token tok) {
-    return tok.type == TokInteger || tok.type == TokComplex;
+    return tok.type == TokInteger || tok.type == TokReal ||
+           tok.type == TokComplex;
+}
+
+Number Parser::parse_integer() {
+    size_t endptr;
+    return std::stol(curtok.lexeme, &endptr);
+}
+
+Number Parser::parse_real() {
+    return std::stold(curtok.lexeme, nullptr);
 }
 
 Number Parser::parse_complex() {
@@ -109,11 +121,6 @@ Number Parser::parse_complex() {
     return std::complex<long double>(re, im);
 }
 
-Number Parser::parse_integer() {
-    size_t endptr;
-    return std::stol(curtok.lexeme, &endptr);
-}
-
 // vector
 // scalar
 Ast *Parser::vector() {
@@ -122,6 +129,8 @@ Ast *Parser::vector() {
     while (is_number_type(curtok)) {
         if (curtok.type == TokInteger) {
             vec->push_back(parse_integer());
+        } else if (curtok.type == TokReal) {
+            vec->push_back(parse_real());
         } else if (curtok.type == TokComplex) {
             vec->push_back(parse_complex());
         }

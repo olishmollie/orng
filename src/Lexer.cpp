@@ -90,7 +90,7 @@ bool Lexer::eof() {
     return end > source.length();
 }
 
-std::string Lexer::lex_integer() {
+std::string Lexer::lex_number(bool &real) {
     std::string buf;
 
     char c = next_char();
@@ -107,6 +107,17 @@ std::string Lexer::lex_integer() {
         buf.append(1, c);
         c = next_char();
     }
+
+    if (!eof() && c == '.') {
+        real = true;
+        buf.append(1, c);
+        c = next_char();
+        while (!eof() && isdigit(c)) {
+            buf.append(1, c);
+            c = next_char();
+        }
+    }
+
     prev_char();
 
     return buf;
@@ -125,8 +136,10 @@ Token Lexer::lex_scalar() {
         prev_char();
     }
 
-    std::string buf = lex_integer();
     bool complex = false;
+    bool real = false;
+
+    std::string buf = lex_number(real);
 
     char c = next_char();
 
@@ -134,7 +147,7 @@ Token Lexer::lex_scalar() {
     if (!eof() && c == 'j') {
         complex = true;
         buf.append(1, c);
-        buf.append(lex_integer());
+        buf.append(lex_number(real));
         c = next_char();
     }
 
@@ -145,8 +158,13 @@ Token Lexer::lex_scalar() {
     // prepare for next call to lex()
     prev_char();
 
-    return complex ? Token(TokComplex, buf, position)
-                   : Token(TokInteger, buf, position);
+    if (complex) {
+        return Token(TokComplex, buf, position);
+    } else if (real) {
+        return Token(TokReal, buf, position);
+    }
+
+    return Token(TokInteger, buf, position);
 }
 
 void Lexer::check_digraph(std::string &lexeme, char secondary) {

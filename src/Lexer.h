@@ -27,7 +27,7 @@ class Lexer {
     char prev_char();
 
     void check_digraph(std::string &lexeme, char secondary);
-    std::string lex_integer();
+    std::string lex_number(bool &real);
 
     Token lex_scalar();
     Token lex_operator();

@@ -8,6 +8,7 @@
 enum TokenType {
     Eof = -1,
     TokInteger,
+    TokReal,
     TokComplex,
     TokOperator,
     TokLeftBracket,

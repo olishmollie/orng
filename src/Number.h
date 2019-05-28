@@ -5,6 +5,7 @@
 
 enum NumberType {
     NumInteger,
+    NumReal,
     NumComplex,
 };
 
@@ -12,10 +13,12 @@ struct Number {
     NumberType type;
     union {
         long integer;
+        long double real;
         std::complex<long double> complex;
     };
 
     Number(long integer);
+    Number(long double);
     Number(std::complex<long double> complex);
 
     friend std::ostream &operator<<(std::ostream &os, const Number &n);

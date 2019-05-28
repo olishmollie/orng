@@ -10,7 +10,9 @@ std::string Token::type_name() const {
     case Eof:
         return "Eof";
     case TokInteger:
-        return "Scalar";
+        return "Integer";
+    case TokReal:
+        return "Real";
     case TokComplex:
         return "Complex";
     case TokOperator:
