@@ -52,8 +52,7 @@ static bool is_paren(char c) {
 }
 
 static bool is_op(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '%' || c == '!' ||
-           c == '@' || c == '/' || c == '?' || c == '<';
+    return !!strchr(".:\"=-@?*%|#$<>!^&+~/\\,", c);
 }
 
 static bool is_delim(char c) {
@@ -101,7 +100,6 @@ std::string Lexer::lex_integer() {
     }
 
     if (!is_digit(c)) {
-        std::cout << "checking for digit: c = " << c << std::endl;
         throw LexicalError("invalid number syntax", end);
     }
 
@@ -116,6 +114,16 @@ std::string Lexer::lex_integer() {
 
 Token Lexer::lex_scalar() {
     int position = end + 1;
+
+    // HACK: check for floor operator
+    if (peek_char() == '_') {
+        next_char();
+        if (peek_char() == '.') {
+            next_char();
+            return Token(TokOperator, "_.", position);
+        }
+        prev_char();
+    }
 
     std::string buf = lex_integer();
     bool complex = false;
@@ -141,49 +149,56 @@ Token Lexer::lex_scalar() {
                    : Token(TokInteger, buf, position);
 }
 
+void Lexer::check_digraph(std::string &lexeme, char secondary) {
+    if (peek_char() == secondary) {
+        next_char();
+        lexeme.append(1, secondary);
+    }
+}
+
 Token Lexer::lex_operator() {
     int position = end + 1;
     std::string lexeme;
 
     char c = next_char();
+
+    lexeme.append(1, c);
+
     switch (c) {
-    case '+':
-        lexeme = "+";
+    case '<':
+        check_digraph(lexeme, '-');
+        check_digraph(lexeme, '=');
+        check_digraph(lexeme, '.');
+        break;
+    case '>':
+        check_digraph(lexeme, '=');
+        check_digraph(lexeme, '.');
         break;
     case '-':
-        lexeme = "-";
+        check_digraph(lexeme, '>');
+        check_digraph(lexeme, '.');
         break;
-    case '*':
-        lexeme = "*";
-        break;
-    case '%':
-        lexeme = "%";
-        break;
-    case '!':
-        lexeme = "!";
+    case '~':
+        check_digraph(lexeme, '^');
+        check_digraph(lexeme, '&');
+        check_digraph(lexeme, '=');
+        check_digraph(lexeme, '.');
         break;
     case '@':
-        lexeme = "@";
-        break;
-    case '/':
-        lexeme = "/";
-        break;
     case '?':
-        if (peek_char() == '.') {
-            next_char();
-            lexeme = "?.";
-        } else {
-            lexeme = "?";
-        }
-        break;
-    case '<':
-        if (peek_char() == '-') {
-            next_char();
-            lexeme = "<-";
-        } else {
-            lexeme = "<";
-        }
-        break;
+    case '*':
+    case '%':
+    case '|':
+    case '#':
+    case '$':
+    case '!':
+    case '^':
+    case '&':
+    case '+':
+    case '/':
+    case '\\':
+    case ',':
+        check_digraph(lexeme, '.');
     }
 
     return Token(TokOperator, lexeme, position);
@@ -197,6 +212,15 @@ Token Lexer::lex_paren() {
     char c = next_char();
     switch (c) {
     case '[':
+        if (peek_char() == ']') {
+            // quad operator
+            next_char();
+            return Token(TokOperator, "[]", position);
+        } else if (peek_char() == ')') {
+            // bare_quad operator
+            next_char();
+            return Token(TokOperator, "[)", position);
+        }
         type = TokLeftBracket;
         lexeme = "[";
         break;
