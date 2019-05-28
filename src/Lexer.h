@@ -9,17 +9,19 @@
 
 class LexicalError : public OrngError {
     std::string msg;
+    std::string source;
     unsigned int column;
 
   public:
-    LexicalError(std::string msg, unsigned int column);
+    LexicalError(std::string msg, std::string source, unsigned int column);
     std::string caused_by();
 };
 
 class Lexer {
+    std::string source;
+
     int start;
     int end;
-    std::string source;
 
     void ignore_char();
     char next_char();

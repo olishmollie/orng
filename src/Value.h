@@ -21,7 +21,6 @@ struct Value {
     Value(Number scalar);
     Value(std::vector<Number> *vec);
 
-    Value(const Value &v);
     ~Value();
 
     friend std::ostream &operator<<(std::ostream &os, const Value &v);

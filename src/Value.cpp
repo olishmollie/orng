@@ -7,22 +7,11 @@ Value::Value(Number scalar_) : type{Scalar}, scalar{scalar_} {}
 
 Value::Value(std::vector<Number> *vec_) : type{Vector}, vec{vec_} {}
 
-Value::Value(const Value &v) {
-    type = v.type;
-    switch (type) {
-    case Identifier:
-        identifier = v.identifier;
-        break;
-    case Scalar:
-        scalar = v.scalar;
-        break;
-    case Vector:
-        vec = v.vec;
-        break;
+Value::~Value() {
+    if (type == Vector) {
+        delete vec;
     }
 }
-
-Value::~Value() {}
 
 std::ostream &operator<<(std::ostream &os, const Value &v) {
     switch (v.type) {

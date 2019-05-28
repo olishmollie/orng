@@ -5,17 +5,24 @@
 #include <sstream>
 #include <vector>
 
-ParseError::ParseError(std::string msg_, unsigned int column_)
-    : msg{msg_}, column{column_} {}
+ParseError::ParseError(std::string msg_, std::string source_,
+                       unsigned int column_)
+    : msg{msg_}, source{source_}, column{column_} {}
 
 std::string ParseError::caused_by() {
     std::ostringstream os;
-    os << "parse error: " << msg << " (column: " << column << ")";
+    os << "parse error: " << msg << std::endl;
+    os << source << std::endl;
+    for (int i = 1; i < column; i++) {
+        os << " ";
+    }
+    os << "^";
     return os.str();
 }
 
-Parser::Parser(char *source)
-    : lexer{Lexer{source}}, curtok{lexer.lex()}, peektok{lexer.lex()} {}
+Parser::Parser(char *source_)
+    : source{static_cast<std::string>(source_)}, lexer{Lexer{source_}},
+      curtok{lexer.lex()}, peektok{lexer.lex()} {}
 
 void Parser::next() {
     curtok = peektok;
@@ -33,14 +40,14 @@ Ast *Parser::expr(bool paren_ok) {
     case Eof:
     case TokRightParen:
         if (!paren_ok && tok.type == TokRightParen) {
-            throw ParseError("unexpected ')'", curtok.position);
+            throw ParseError("unexpected token", source, curtok.position);
         }
         return left;
     case TokOperator:
         next();
         return new BinaryAst(tok, left, expr(paren_ok));
     default:
-        throw ParseError("unexpected token", curtok.position);
+        throw ParseError("unexpected token", source, curtok.position);
     }
 }
 
@@ -63,7 +70,7 @@ Ast *Parser::operand(bool paren_ok) {
         left = atom();
         break;
     default:
-        throw ParseError("unexpected token", tok.position);
+        throw ParseError("unexpected token", source, tok.position);
     }
 
     return left;
@@ -80,7 +87,7 @@ Ast *Parser::atom() {
     switch (tok.type) {
     case TokIdentifier:
         next();
-        return new LiteralAst(curtok, Value(tok.lexeme));
+        return new LiteralAst(curtok, new Value(tok.lexeme));
     case TokInteger:
     case TokReal:
     case TokComplex:
@@ -89,12 +96,13 @@ Ast *Parser::atom() {
         next();
         inner = expr(true);
         if (curtok.type != TokRightParen) {
-            throw ParseError("expected ')'", curtok.position);
+            std::cout << "curtok = " << curtok << std::endl;
+            throw ParseError("expected ')'", source, curtok.position);
         }
         next();
         break;
     default:
-        throw ParseError("unknown token type", curtok.position);
+        throw ParseError("unknown token type", source, curtok.position);
     }
 
     return inner;
@@ -146,9 +154,9 @@ Ast *Parser::vector() {
     }
 
     if (vec->size() == 1) {
-        Ast *result = new LiteralAst(tok, Value((*vec)[0]));
+        Ast *result = new LiteralAst(tok, new Value((*vec)[0]));
         delete vec;
         return result;
     }
-    return new LiteralAst(tok, Value(vec));
+    return new LiteralAst(tok, new Value(vec));
 }

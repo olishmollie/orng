@@ -4,16 +4,18 @@
 
 #define INDENT "    "
 
-LiteralAst::LiteralAst(Token root_, Value value_)
+LiteralAst::LiteralAst(Token root_, Value *value_)
     : root{root_}, value{value_} {}
 
 std::string LiteralAst::to_string(int depth) {
     std::ostringstream os;
-    os << "<LiteralAst " << value << ">";
+    os << "<LiteralAst " << *value << ">";
     return os.str();
 }
 
-LiteralAst::~LiteralAst() {}
+LiteralAst::~LiteralAst() {
+    delete value;
+}
 
 std::string UnaryAst::to_string(int depth) {
     std::ostringstream os;

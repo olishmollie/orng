@@ -7,14 +7,17 @@
 
 class ParseError : public OrngError {
     std::string msg;
+    std::string source;
     unsigned int column;
 
   public:
-    ParseError(std::string msg, unsigned int column);
+    ParseError(std::string msg, std::string source, unsigned int column);
     std::string caused_by();
 };
 
 class Parser {
+    std::string source;
+
     Lexer lexer;
     Token curtok;
     Token peektok;

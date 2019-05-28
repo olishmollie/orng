@@ -4,19 +4,23 @@
 #include <sstream>
 #include <vector>
 
-LexicalError::LexicalError(std::string msg_, unsigned int column_)
-    : msg{msg_}, column{column_} {}
+LexicalError::LexicalError(std::string msg_, std::string source_,
+                           unsigned int column_)
+    : msg{msg_}, source{source_}, column{column_} {}
 
 std::string LexicalError::caused_by() {
     std::ostringstream os;
-    os << "lexical error: " << msg << " (column: " << column << ")";
+    os << "lexical error: " << msg << std::endl;
+    os << source << std::endl;
+    for (int i = 0; i < column; i++) {
+        os << " ";
+    }
+    os << "^";
     return os.str();
 }
 
-Lexer::Lexer(char *source) {
-    this->source = static_cast<std::string>(source);
-    start = end = 0;
-}
+Lexer::Lexer(char *source_)
+    : source{static_cast<std::string>(source_)}, start{0}, end{0} {}
 
 Lexer::Lexer(std::string source) {
     this->source = source;
@@ -84,7 +88,7 @@ Token Lexer::lex() {
         } else if (is_op(c)) {
             return lex_operator();
         }
-        throw LexicalError("unknown character", end + 1);
+        throw LexicalError("unknown character", source, end + 1);
     }
 
     next_char();
@@ -106,7 +110,7 @@ std::string Lexer::lex_number(bool &real) {
     }
 
     if (!is_digit(c)) {
-        throw LexicalError("invalid number syntax", end);
+        throw LexicalError("malformed number", source, end);
     }
 
     while (!eof() && isdigit(c)) {
@@ -157,12 +161,12 @@ Token Lexer::lex_scalar() {
         c = next_char();
     }
 
-    if (!eof() && !is_delim(c)) {
-        throw LexicalError("invalid number syntax", end);
-    }
-
     // prepare for next call to lex()
     prev_char();
+
+    if (!eof() && !is_delim(c)) {
+        throw LexicalError("malformed number", source, end);
+    }
 
     if (complex) {
         return Token(TokComplex, buf, position);

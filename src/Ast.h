@@ -15,11 +15,11 @@ struct Ast {
 class LiteralAst : public Ast {
   private:
     Token root;
-    Value value;
+    Value *value;
     std::string to_string(int depth = 0);
 
   public:
-    LiteralAst(Token root, Value value);
+    LiteralAst(Token root, Value *value);
     ~LiteralAst();
 };
 
