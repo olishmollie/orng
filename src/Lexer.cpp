@@ -64,6 +64,10 @@ static bool is_digit(char c) {
     return c >= '0' && c <= '9';
 }
 
+static bool is_alpha(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
 Token Lexer::lex() {
     char c;
 
@@ -71,10 +75,12 @@ Token Lexer::lex() {
         if (is_space(c)) {
             ignore_char();
             continue;
-        } else if (is_paren(c)) {
-            return lex_paren();
         } else if (c == '_' || is_digit(c)) {
             return lex_scalar();
+        } else if (is_alpha(c)) {
+            return lex_identifier();
+        } else if (is_paren(c)) {
+            return lex_paren();
         } else if (is_op(c)) {
             return lex_operator();
         }
@@ -165,6 +171,20 @@ Token Lexer::lex_scalar() {
     }
 
     return Token(TokInteger, buf, position);
+}
+
+Token Lexer::lex_identifier() {
+    int position = end + 1;
+    std::string buf;
+
+    char c = next_char();
+    while (!eof() && isalnum(c)) {
+        buf.append(1, c);
+        c = next_char();
+    }
+    prev_char();
+
+    return Token(TokIdentifier, buf, position);
 }
 
 void Lexer::check_digraph(std::string &lexeme, char secondary) {

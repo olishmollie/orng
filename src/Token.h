@@ -1,12 +1,11 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "Value.h"
-
 #include <iostream>
 
 enum TokenType {
     Eof = -1,
+    TokIdentifier,
     TokInteger,
     TokReal,
     TokComplex,

@@ -9,6 +9,8 @@ std::string Token::type_name() const {
     switch (type) {
     case Eof:
         return "Eof";
+    case TokIdentifier:
+        return "Identifier";
     case TokInteger:
         return "Integer";
     case TokReal:

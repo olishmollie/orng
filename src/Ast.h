@@ -3,6 +3,7 @@
 
 #include "Number.h"
 #include "Token.h"
+#include "Value.h"
 
 #include <vector>
 
@@ -14,17 +15,11 @@ struct Ast {
 class LiteralAst : public Ast {
   private:
     Token root;
-    bool is_vector;
-    union {
-        Number scalar;
-        std::vector<Number> *vec;
-    };
-
+    Value value;
     std::string to_string(int depth = 0);
 
   public:
-    LiteralAst(Token root, Number);
-    LiteralAst(Token root, std::vector<Number> *vec);
+    LiteralAst(Token root, Value value);
     ~LiteralAst();
 };
 

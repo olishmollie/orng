@@ -44,8 +44,9 @@ Ast *Parser::expr(bool paren_ok) {
     }
 }
 
-// number
-// vector
+// operand:
+//   atom
+//   unop operand
 Ast *Parser::operand(bool paren_ok) {
     Ast *left;
     Token tok = curtok;
@@ -54,6 +55,7 @@ Ast *Parser::operand(bool paren_ok) {
         next();
         left = new UnaryAst(tok, expr(paren_ok));
         break;
+    case TokIdentifier:
     case TokInteger:
     case TokReal:
     case TokComplex:
@@ -67,12 +69,18 @@ Ast *Parser::operand(bool paren_ok) {
     return left;
 }
 
-// vector
-// '(' expr ')'
+// atom:
+//   scalar
+//   vector
+//   identifier
+//   '(' expr ')'
 Ast *Parser::atom() {
     Ast *inner;
     Token tok = curtok;
     switch (tok.type) {
+    case TokIdentifier:
+        next();
+        return new LiteralAst(curtok, Value(tok.lexeme));
     case TokInteger:
     case TokReal:
     case TokComplex:
@@ -138,9 +146,9 @@ Ast *Parser::vector() {
     }
 
     if (vec->size() == 1) {
-        Ast *result = new LiteralAst(tok, (*vec)[0]);
+        Ast *result = new LiteralAst(tok, Value((*vec)[0]));
         delete vec;
         return result;
     }
-    return new LiteralAst(tok, vec);
+    return new LiteralAst(tok, Value(vec));
 }

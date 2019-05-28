@@ -30,6 +30,7 @@ class Lexer {
     std::string lex_number(bool &real);
 
     Token lex_scalar();
+    Token lex_identifier();
     Token lex_operator();
     Token lex_paren();
 

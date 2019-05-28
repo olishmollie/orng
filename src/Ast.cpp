@@ -4,44 +4,16 @@
 
 #define INDENT "    "
 
-LiteralAst::LiteralAst(Token root_, Number scalar_)
-    : root{root_}, scalar{scalar_} {
-    is_vector = false;
-}
-
-LiteralAst::LiteralAst(Token root_, std::vector<Number> *vec_)
-    : root{root_}, vec{vec_} {
-    is_vector = true;
-}
+LiteralAst::LiteralAst(Token root_, Value value_)
+    : root{root_}, value{value_} {}
 
 std::string LiteralAst::to_string(int depth) {
     std::ostringstream os;
-
-    os << "<LiteralAst ";
-
-    if (is_vector) {
-        os << "[";
-        for (int i = 0; i < vec->size(); i++) {
-            os << (*vec)[i];
-            if (i != vec->size() - 1) {
-                os << " ";
-            }
-        }
-        os << "]";
-    } else {
-        os << scalar;
-    }
-
-    os << ">";
-
+    os << "<LiteralAst " << value << ">";
     return os.str();
 }
 
-LiteralAst::~LiteralAst() {
-    if (is_vector) {
-        delete vec;
-    }
-}
+LiteralAst::~LiteralAst() {}
 
 std::string UnaryAst::to_string(int depth) {
     std::ostringstream os;

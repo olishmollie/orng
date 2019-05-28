@@ -1,26 +1,30 @@
 #ifndef VALUE_H
 #define VALUE_H
 
+#include "Number.h"
+
+#include <iostream>
 #include <string>
 #include <vector>
 
-enum ValueType { Scalar, Vector, Operation };
+enum ValueType { Identifier, Scalar, Vector };
 
 struct Value {
     ValueType type;
     union {
-        long scalar;
-        std::vector<long> vec;
-        std::string operation;
+        std::string identifier;
+        Number scalar;
+        std::vector<Number> *vec;
     };
 
-    Value(long scalar);
-    Value(std::vector<long> vec);
-    Value(std::string op);
+    Value(std::string identifier);
+    Value(Number scalar);
+    Value(std::vector<Number> *vec);
 
-    Value(const Value &val);
+    Value(const Value &v);
+    ~Value();
 
-    ~Value(){};
+    friend std::ostream &operator<<(std::ostream &os, const Value &v);
 };
 
 #endif
