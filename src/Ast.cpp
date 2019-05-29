@@ -13,6 +13,10 @@ std::string LiteralAst::to_string(int depth) {
     return os.str();
 }
 
+Value *LiteralAst::eval() {
+    return value;
+}
+
 LiteralAst::~LiteralAst() {
     delete value;
 }
@@ -25,6 +29,10 @@ std::string UnaryAst::to_string(int depth) {
     }
     os << next->to_string(depth + 1) << ">";
     return os.str();
+}
+
+Value *UnaryAst::eval() {
+    return nullptr;
 }
 
 UnaryAst::~UnaryAst() {
@@ -45,6 +53,10 @@ std::string BinaryAst::to_string(int depth) {
     }
     os << right->to_string(depth + 1);
     return os.str();
+}
+
+Value *BinaryAst::eval() {
+    return nullptr;
 }
 
 BinaryAst::~BinaryAst() {

@@ -1,3 +1,4 @@
+#include "Interpreter.h"
 #include "Lexer.h"
 #include "Parser.h"
 
@@ -27,13 +28,20 @@ int main() {
         //     }
         // }
 
+        // try {
+        //     Parser parser(buf);
+        //     Ast *ast = parser.parse();
+        //     cout << ast->to_string() << endl;
+        //     delete ast;
+        // } catch (OrngError &e) {
+        //     cout << e.caused_by() << endl;
+        // }
+
         try {
-            Parser parser(buf);
-            Ast *ast = parser.parse();
-            cout << ast->to_string() << endl;
-            delete ast;
+            Interpreter interpreter(buf);
+            interpreter.read_eval_print();
         } catch (OrngError &e) {
-            cout << e.caused_by() << endl;
+            cerr << e.caused_by() << endl;
         }
 
         free(buf);

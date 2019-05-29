@@ -8,6 +8,7 @@
 #include <vector>
 
 struct Ast {
+    virtual Value *eval() = 0;
     virtual std::string to_string(int depth = 0) = 0;
     virtual ~Ast() = default;
 };
@@ -21,6 +22,8 @@ class LiteralAst : public Ast {
   public:
     LiteralAst(Token root, Value *value);
     ~LiteralAst();
+
+    Value *eval();
 };
 
 class UnaryAst : public Ast {
@@ -32,6 +35,7 @@ class UnaryAst : public Ast {
 
   public:
     UnaryAst(Token root, Ast *next) : root{root}, next{next} {}
+    Value *eval();
     ~UnaryAst();
 };
 
@@ -46,6 +50,7 @@ class BinaryAst : public Ast {
   public:
     BinaryAst(Token root, Ast *left, Ast *right)
         : root{root}, left{left}, right{right} {}
+    Value *eval();
     ~BinaryAst();
 };
 
