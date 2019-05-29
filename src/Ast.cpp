@@ -4,11 +4,26 @@
 
 #define INDENT "    "
 
+RuntimeError::RuntimeError(std::string msg_, std::string source_,
+                           unsigned int column_)
+    : msg{msg_}, source{source_}, column{column_} {}
+
+std::string RuntimeError::caused_by() {
+    std::ostringstream os;
+    os << "parse error: " << msg << std::endl;
+    os << source << std::endl;
+    for (int i = 1; i < column; i++) {
+        os << " ";
+    }
+    os << "^";
+    return os.str();
+}
+
 std::string Ast::to_string(int depth) {
     return root->to_string();
 }
 
-Value *Ast::eval() {
+std::unique_ptr<Value> Ast::eval() {
     return root->eval();
 }
 
@@ -25,12 +40,8 @@ std::string LiteralExpr::to_string(int depth) {
     return os.str();
 }
 
-Value *LiteralExpr::eval() {
-    return value;
-}
-
-LiteralExpr::~LiteralExpr() {
-    delete value;
+std::unique_ptr<Value> LiteralExpr::eval() {
+    return std::unique_ptr<Value>(value);
 }
 
 std::string UnaryExpr::to_string(int depth) {
@@ -43,8 +54,25 @@ std::string UnaryExpr::to_string(int depth) {
     return os.str();
 }
 
-Value *UnaryExpr::eval() {
+std::unique_ptr<Value> UnaryExpr::eval() {
+    if (root.lexeme == "!") {
+        return iota();
+    }
     return nullptr;
+}
+
+std::unique_ptr<Value> UnaryExpr::iota() {
+    std::unique_ptr<Value> arg = next->eval();
+    if (arg->type != Scalar || arg->scalar.type != NumInteger) {
+        throw "domain error";
+    }
+
+    std::vector<Number> *vec = new std::vector<Number>();
+    for (int i = 0; i < arg->scalar.integer; i++) {
+        vec->push_back(Number(static_cast<long>(i + 1)));
+    }
+
+    return std::unique_ptr<Value>(new Value(vec));
 }
 
 UnaryExpr::~UnaryExpr() {
@@ -67,7 +95,7 @@ std::string BinaryExpr::to_string(int depth) {
     return os.str();
 }
 
-Value *BinaryExpr::eval() {
+std::unique_ptr<Value> BinaryExpr::eval() {
     return nullptr;
 }
 

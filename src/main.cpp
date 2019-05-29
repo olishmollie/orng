@@ -28,21 +28,21 @@ int main() {
         //     }
         // }
 
-        try {
-            Parser parser(buf);
-            Ast ast = parser.parse();
-            cout << ast.to_string() << endl;
-            // delete ast;
-        } catch (OrngError &e) {
-            cout << e.caused_by() << endl;
-        }
-
         // try {
-        //     Interpreter interpreter(buf);
-        //     interpreter.read_eval_print();
+        //     Parser parser(buf);
+        //     Ast ast = parser.parse();
+        //     cout << ast.to_string() << endl;
+        //     // delete ast;
         // } catch (OrngError &e) {
-        //     cerr << e.caused_by() << endl;
+        //     cout << e.caused_by() << endl;
         // }
+
+        try {
+            Interpreter interpreter(buf);
+            interpreter.read_eval_print();
+        } catch (OrngError &e) {
+            cerr << e.caused_by() << endl;
+        }
 
         free(buf);
     }

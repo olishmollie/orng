@@ -1,14 +1,25 @@
 #ifndef AST_H
 #define AST_H
 
+#include "Error.h"
 #include "Number.h"
 #include "Token.h"
 #include "Value.h"
 
 #include <vector>
 
+class RuntimeError : public OrngError {
+    std::string msg;
+    std::string source;
+    unsigned int column;
+
+  public:
+    RuntimeError(std::string msg, std::string source, unsigned int column);
+    std::string caused_by();
+};
+
 struct Expr {
-    virtual Value *eval() = 0;
+    virtual std::unique_ptr<Value> eval() = 0;
     virtual std::string to_string(int depth = 0) = 0;
     virtual ~Expr() = default;
 };
@@ -16,7 +27,7 @@ struct Expr {
 struct Ast {
     Expr *root;
     std::string to_string(int depth = 0);
-    Value *eval();
+    std::unique_ptr<Value> eval();
     ~Ast();
 };
 
@@ -28,9 +39,8 @@ class LiteralExpr : public Expr {
 
   public:
     LiteralExpr(Token root, Value *value);
-    ~LiteralExpr();
 
-    Value *eval();
+    std::unique_ptr<Value> eval();
 };
 
 class UnaryExpr : public Expr {
@@ -42,8 +52,10 @@ class UnaryExpr : public Expr {
 
   public:
     UnaryExpr(Token root, Expr *next) : root{root}, next{next} {}
-    Value *eval();
+    std::unique_ptr<Value> eval();
     ~UnaryExpr();
+
+    std::unique_ptr<Value> iota();
 };
 
 class BinaryExpr : public Expr {
@@ -57,7 +69,7 @@ class BinaryExpr : public Expr {
   public:
     BinaryExpr(Token root, Expr *left, Expr *right)
         : root{root}, left{left}, right{right} {}
-    Value *eval();
+    std::unique_ptr<Value> eval();
     ~BinaryExpr();
 };
 
