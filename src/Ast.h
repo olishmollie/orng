@@ -7,51 +7,58 @@
 
 #include <vector>
 
-struct Ast {
+struct Expr {
     virtual Value *eval() = 0;
     virtual std::string to_string(int depth = 0) = 0;
-    virtual ~Ast() = default;
+    virtual ~Expr() = default;
 };
 
-class LiteralAst : public Ast {
+struct Ast {
+    Expr *root;
+    std::string to_string(int depth = 0);
+    Value *eval();
+    ~Ast();
+};
+
+class LiteralExpr : public Expr {
   private:
     Token root;
     Value *value;
     std::string to_string(int depth = 0);
 
   public:
-    LiteralAst(Token root, Value *value);
-    ~LiteralAst();
+    LiteralExpr(Token root, Value *value);
+    ~LiteralExpr();
 
     Value *eval();
 };
 
-class UnaryAst : public Ast {
+class UnaryExpr : public Expr {
   private:
     Token root;
-    Ast *next;
+    Expr *next;
 
     std::string to_string(int depth = 0);
 
   public:
-    UnaryAst(Token root, Ast *next) : root{root}, next{next} {}
+    UnaryExpr(Token root, Expr *next) : root{root}, next{next} {}
     Value *eval();
-    ~UnaryAst();
+    ~UnaryExpr();
 };
 
-class BinaryAst : public Ast {
+class BinaryExpr : public Expr {
   private:
     Token root;
-    Ast *left;
-    Ast *right;
+    Expr *left;
+    Expr *right;
 
     std::string to_string(int depth = 0);
 
   public:
-    BinaryAst(Token root, Ast *left, Ast *right)
+    BinaryExpr(Token root, Expr *left, Expr *right)
         : root{root}, left{left}, right{right} {}
     Value *eval();
-    ~BinaryAst();
+    ~BinaryExpr();
 };
 
 #endif

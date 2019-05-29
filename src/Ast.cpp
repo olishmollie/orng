@@ -4,26 +4,38 @@
 
 #define INDENT "    "
 
-LiteralAst::LiteralAst(Token root_, Value *value_)
+std::string Ast::to_string(int depth) {
+    return root->to_string();
+}
+
+Value *Ast::eval() {
+    return root->eval();
+}
+
+Ast::~Ast() {
+    delete root;
+}
+
+LiteralExpr::LiteralExpr(Token root_, Value *value_)
     : root{root_}, value{value_} {}
 
-std::string LiteralAst::to_string(int depth) {
+std::string LiteralExpr::to_string(int depth) {
     std::ostringstream os;
-    os << "<LiteralAst " << *value << ">";
+    os << "<LiteralExpr " << *value << ">";
     return os.str();
 }
 
-Value *LiteralAst::eval() {
+Value *LiteralExpr::eval() {
     return value;
 }
 
-LiteralAst::~LiteralAst() {
+LiteralExpr::~LiteralExpr() {
     delete value;
 }
 
-std::string UnaryAst::to_string(int depth) {
+std::string UnaryExpr::to_string(int depth) {
     std::ostringstream os;
-    os << "<UnaryAst '" << root.lexeme << "'" << std::endl;
+    os << "<UnaryExpr '" << root.lexeme << "'" << std::endl;
     for (int i = 0; i < depth + 1; i++) {
         os << INDENT;
     }
@@ -31,19 +43,19 @@ std::string UnaryAst::to_string(int depth) {
     return os.str();
 }
 
-Value *UnaryAst::eval() {
+Value *UnaryExpr::eval() {
     return nullptr;
 }
 
-UnaryAst::~UnaryAst() {
+UnaryExpr::~UnaryExpr() {
     if (next) {
         delete next;
     }
 }
 
-std::string BinaryAst::to_string(int depth) {
+std::string BinaryExpr::to_string(int depth) {
     std::ostringstream os;
-    os << "<BinaryAst '" << root.lexeme << "'" << std::endl;
+    os << "<BinaryExpr '" << root.lexeme << "'" << std::endl;
     for (int i = 0; i < depth + 1; i++) {
         os << INDENT;
     }
@@ -55,11 +67,11 @@ std::string BinaryAst::to_string(int depth) {
     return os.str();
 }
 
-Value *BinaryAst::eval() {
+Value *BinaryExpr::eval() {
     return nullptr;
 }
 
-BinaryAst::~BinaryAst() {
+BinaryExpr::~BinaryExpr() {
     if (left) {
         delete left;
     }

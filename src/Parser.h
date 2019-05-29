@@ -29,15 +29,15 @@ class Parser {
     Number parse_real();
     Number parse_complex();
 
-    Ast *expr(bool paren_ok);
-    Ast *operand(bool paren_ok);
-    Ast *atom();
-    Ast *vector();
+    Expr *expr(bool paren_ok);
+    Expr *operand(bool paren_ok);
+    Expr *atom();
+    Expr *vector();
 
   public:
     Parser(char *source);
 
-    Ast *parse();
+    Ast parse();
 };
 
 #endif

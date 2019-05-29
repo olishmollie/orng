@@ -29,23 +29,25 @@ void Parser::next() {
     peektok = lexer.lex();
 }
 
-Ast *Parser::parse() {
-    return expr(false);
+Ast Parser::parse() {
+    return Ast{expr(false)};
 }
 
-Ast *Parser::expr(bool paren_ok) {
-    Ast *left = operand(paren_ok);
+Expr *Parser::expr(bool paren_ok) {
+    Expr *left = operand(paren_ok);
     Token tok = curtok;
     switch (tok.type) {
     case Eof:
     case TokRightParen:
         if (!paren_ok && tok.type == TokRightParen) {
+            // TODO: RAII solution to this?
+            delete left;
             throw ParseError("unexpected token", source, curtok.position);
         }
         return left;
     case TokOperator:
         next();
-        return new BinaryAst(tok, left, expr(paren_ok));
+        return new BinaryExpr(tok, left, expr(paren_ok));
     default:
         throw ParseError("unexpected token", source, curtok.position);
     }
@@ -54,13 +56,13 @@ Ast *Parser::expr(bool paren_ok) {
 // operand:
 //   atom
 //   unop operand
-Ast *Parser::operand(bool paren_ok) {
-    Ast *left;
+Expr *Parser::operand(bool paren_ok) {
+    Expr *left;
     Token tok = curtok;
     switch (tok.type) {
     case TokOperator:
         next();
-        left = new UnaryAst(tok, expr(paren_ok));
+        left = new UnaryExpr(tok, expr(paren_ok));
         break;
     case TokIdentifier:
     case TokInteger:
@@ -81,13 +83,13 @@ Ast *Parser::operand(bool paren_ok) {
 //   vector
 //   identifier
 //   '(' expr ')'
-Ast *Parser::atom() {
-    Ast *inner;
+Expr *Parser::atom() {
+    Expr *inner;
     Token tok = curtok;
     switch (tok.type) {
     case TokIdentifier:
         next();
-        return new LiteralAst(curtok, new Value(tok.lexeme));
+        return new LiteralExpr(curtok, new Value(tok.lexeme));
     case TokInteger:
     case TokReal:
     case TokComplex:
@@ -96,7 +98,8 @@ Ast *Parser::atom() {
         next();
         inner = expr(true);
         if (curtok.type != TokRightParen) {
-            std::cout << "curtok = " << curtok << std::endl;
+            // TODO: RAII solution to this?
+            delete inner;
             throw ParseError("expected ')'", source, curtok.position);
         }
         next();
@@ -139,7 +142,7 @@ Number Parser::parse_complex() {
 
 // vector
 // scalar
-Ast *Parser::vector() {
+Expr *Parser::vector() {
     Token tok = curtok;
     std::vector<Number> *vec = new std::vector<Number>();
     while (is_number_type(curtok)) {
@@ -154,9 +157,10 @@ Ast *Parser::vector() {
     }
 
     if (vec->size() == 1) {
-        Ast *result = new LiteralAst(tok, new Value((*vec)[0]));
+        Expr *result = new LiteralExpr(tok, new Value((*vec)[0]));
         delete vec;
         return result;
     }
-    return new LiteralAst(tok, new Value(vec));
+
+    return new LiteralExpr(tok, new Value(vec));
 }
