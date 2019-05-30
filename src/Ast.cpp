@@ -1,9 +1,11 @@
 #include "Ast.hpp"
 
+#include <algorithm>
 #include <random>
+#include <set>
 #include <sstream>
 
-#define INDENT "    "
+const char *INDENT = "    ";
 
 const long double PI = 3.141592654;
 
@@ -154,9 +156,11 @@ std::unique_ptr<Matrix> UnaryExpr::roll() {
         throw "domain error";
     }
 
+    const unsigned long SEED =
+        std::chrono::system_clock::now().time_since_epoch().count();
     std::vector<Number> *vec = new std::vector<Number>();
 
-    std::mt19937 mt(1729); // seed random number generator
+    std::mt19937 mt(SEED); // seed random number generator
     for (unsigned long i = 0; i < arg->count(); i++) {
         Number n = arg->at(i);
         if (!n.is_integer() || n <= 0) {
@@ -194,8 +198,12 @@ std::string BinaryExpr::to_string(int depth) {
 }
 
 std::unique_ptr<Matrix> BinaryExpr::eval() {
-    if (root.lexeme == "#") {
+    if (root.lexeme == "!") {
+
+    } else if (root.lexeme == "#") {
         return reshape();
+    } else if (root.lexeme == "?.") {
+        return deal();
     }
     return NIL;
 }
@@ -206,6 +214,44 @@ std::unique_ptr<Matrix> BinaryExpr::reshape() {
     Shape *shape = larg->get_shape();
 
     return NIL;
+}
+
+std::unique_ptr<Matrix> BinaryExpr::deal() {
+    std::unique_ptr<Matrix> larg = left->eval();
+    std::unique_ptr<Matrix> rarg = right->eval();
+    if (rarg->is_nil()) {
+        throw "function valence not fit";
+    }
+    if (!larg->is_integer() || !rarg->is_integer()) {
+        throw "domain error";
+    }
+
+    long size = larg->at(0).integer;
+    long n = rarg->at(0).integer;
+
+    if (size > n) {
+        throw "domain error";
+    }
+
+    const unsigned long SEED =
+        std::chrono::system_clock::now().time_since_epoch().count();
+    // use std::set to guarantee uniqueness
+    std::unique_ptr<std::set<Number>> set =
+        std::unique_ptr<std::set<Number>>(new std::set<Number>());
+
+    std::mt19937 mt(SEED);
+    while (set->size() < size) {
+        std::uniform_int_distribution<long> dist(1, n);
+        std::pair<std::set<Number>::iterator, bool> unique =
+            set->insert(Number(dist(mt)));
+    }
+
+    std::vector<Number> *vec =
+        new std::vector<Number>(set->begin(), set->end());
+
+    std::shuffle(vec->begin(), vec->end(), std::default_random_engine(SEED));
+
+    return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
 BinaryExpr::~BinaryExpr() {
