@@ -63,13 +63,18 @@ std::unique_ptr<Value> UnaryExpr::eval() {
 
 std::unique_ptr<Value> UnaryExpr::iota() {
     std::unique_ptr<Value> arg = next->eval();
-    if (arg->type != Scalar || arg->scalar.type != NumInteger) {
+    if (!arg->is_scalar() && arg->at(0).type != NumInteger) {
+        throw "domain error";
+    }
+
+    long size = arg->vec->at(0).integer;
+    if (size < 0) {
         throw "domain error";
     }
 
     std::vector<Number> *vec = new std::vector<Number>();
-    for (int i = 0; i < arg->scalar.integer; i++) {
-        vec->push_back(Number(static_cast<long>(i + 1)));
+    for (long i = 0; i < size; i++) {
+        vec->push_back(Number(i + 1));
     }
 
     return std::unique_ptr<Value>(new Value(vec));

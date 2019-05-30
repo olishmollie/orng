@@ -156,11 +156,5 @@ Expr *Parser::vector() {
         next();
     }
 
-    if (vec->size() == 1) {
-        Expr *result = new LiteralExpr(tok, new Value((*vec)[0]));
-        delete vec;
-        return result;
-    }
-
     return new LiteralExpr(tok, new Value(vec));
 }
