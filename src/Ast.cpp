@@ -78,7 +78,7 @@ std::unique_ptr<Matrix> UnaryExpr::eval() {
 
 std::unique_ptr<Matrix> UnaryExpr::iota() {
     std::unique_ptr<Matrix> arg = next->eval();
-    if (!arg->is_integer()) {
+    if (arg->is_nil() || !arg->is_integer()) {
         throw "domain error";
     }
 
@@ -100,6 +100,9 @@ std::unique_ptr<Matrix> UnaryExpr::iota() {
 
 std::unique_ptr<Matrix> UnaryExpr::shape() {
     std::unique_ptr<Matrix> arg = next->eval();
+    if (arg->is_nil()) {
+        throw "domain error";
+    }
 
     if (arg->is_scalar()) {
         return NIL;
@@ -117,14 +120,23 @@ std::unique_ptr<Matrix> UnaryExpr::shape() {
 
 std::unique_ptr<Matrix> UnaryExpr::pi() {
     std::unique_ptr<Matrix> arg = next->eval();
+    if (arg->is_nil()) {
+        throw "domain error";
+    }
+
     for (unsigned long i = 0; i < arg->count(); i++) {
         arg->at(i) *= PI;
     }
+
     return arg;
 }
 
 std::unique_ptr<Matrix> UnaryExpr::abs() {
     std::unique_ptr<Matrix> arg = next->eval();
+    if (arg->is_nil()) {
+        throw "domain error";
+    }
+
     for (unsigned long i = 0; i < arg->count(); i++) {
         Number n = arg->at(i);
         if (n < 0) {
@@ -132,11 +144,15 @@ std::unique_ptr<Matrix> UnaryExpr::abs() {
             arg->at(i) = n;
         }
     }
+
     return arg;
 }
 
 std::unique_ptr<Matrix> UnaryExpr::roll() {
     std::unique_ptr<Matrix> arg = next->eval();
+    if (arg->is_nil()) {
+        throw "domain error";
+    }
 
     std::vector<Number> *vec = new std::vector<Number>();
 

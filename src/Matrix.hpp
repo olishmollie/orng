@@ -25,6 +25,7 @@ class Matrix {
     bool is_integer();
     bool is_real();
     bool is_complex();
+    bool is_nil();
 
     Number &at(unsigned long index) const;
     Shape *get_shape();

@@ -38,6 +38,10 @@ bool Matrix::is_complex() {
     return is_scalar() && (*data)[0].type == NumReal;
 }
 
+bool Matrix::is_nil() {
+    return shape == nullptr;
+}
+
 Number &Matrix::at(unsigned long index) const {
     return data->at(index);
 }
