@@ -1,8 +1,11 @@
 #include "Ast.hpp"
 
+#include <random>
 #include <sstream>
 
 #define INDENT "    "
+
+const long double PI = 3.141592654;
 
 RuntimeError::RuntimeError(std::string msg_, std::string source_,
                            unsigned int column_)
@@ -23,7 +26,7 @@ std::string Ast::to_string(int depth) {
     return root->to_string();
 }
 
-Value Ast::eval() {
+std::unique_ptr<Matrix> Ast::eval() {
     return root->eval();
 }
 
@@ -40,7 +43,7 @@ std::string LiteralExpr::to_string(int depth) {
     return os.str();
 }
 
-Value LiteralExpr::eval() {
+std::unique_ptr<Matrix> LiteralExpr::eval() {
     return std::unique_ptr<Matrix>(matrix);
 }
 
@@ -58,17 +61,23 @@ std::string UnaryExpr::to_string(int depth) {
     return os.str();
 }
 
-Value UnaryExpr::eval() {
+std::unique_ptr<Matrix> UnaryExpr::eval() {
     if (root.lexeme == "!") {
         return iota();
     } else if (root.lexeme == "#") {
         return shape();
+    } else if (root.lexeme == "@") {
+        return pi();
+    } else if (root.lexeme == "|") {
+        return abs();
+    } else if (root.lexeme == "?.") {
+        return roll();
     }
     return NIL;
 }
 
-Value UnaryExpr::iota() {
-    Value arg = next->eval();
+std::unique_ptr<Matrix> UnaryExpr::iota() {
+    std::unique_ptr<Matrix> arg = next->eval();
     if (!arg->is_integer()) {
         throw "domain error";
     }
@@ -89,8 +98,60 @@ Value UnaryExpr::iota() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-Value UnaryExpr::shape() {
-    Value arg = next->eval();
+std::unique_ptr<Matrix> UnaryExpr::shape() {
+    std::unique_ptr<Matrix> arg = next->eval();
+
+    if (arg->is_scalar()) {
+        return NIL;
+    }
+
+    Shape *shape = arg->get_shape();
+
+    std::vector<Number> *vec = new std::vector<Number>();
+    for (unsigned long i = 0; i < shape->size(); i++) {
+        vec->at(i) = Number((long)shape->at(i));
+    }
+
+    return std::unique_ptr<Matrix>(new Matrix(vec));
+}
+
+std::unique_ptr<Matrix> UnaryExpr::pi() {
+    std::unique_ptr<Matrix> arg = next->eval();
+    for (unsigned long i = 0; i < arg->count(); i++) {
+        arg->at(i) *= PI;
+    }
+    return arg;
+}
+
+std::unique_ptr<Matrix> UnaryExpr::abs() {
+    std::unique_ptr<Matrix> arg = next->eval();
+    for (unsigned long i = 0; i < arg->count(); i++) {
+        Number n = arg->at(i);
+        if (n < 0) {
+            n *= -1;
+            arg->at(i) = n;
+        }
+    }
+    return arg;
+}
+
+std::unique_ptr<Matrix> UnaryExpr::roll() {
+    std::unique_ptr<Matrix> arg = next->eval();
+
+    std::vector<Number> *vec = new std::vector<Number>();
+
+    std::mt19937 mt(1729); // seed random number generator
+    for (unsigned long i = 0; i < arg->count(); i++) {
+        Number n = arg->at(i);
+        if (!n.is_integer() || n <= 0) {
+            delete vec;
+            throw "domain error";
+        }
+        std::uniform_int_distribution<long> dist(1, n.integer);
+        vec->push_back(Number(dist(mt)));
+    }
+
+    return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
 UnaryExpr::~UnaryExpr() {
@@ -116,15 +177,15 @@ std::string BinaryExpr::to_string(int depth) {
     return os.str();
 }
 
-Value BinaryExpr::eval() {
+std::unique_ptr<Matrix> BinaryExpr::eval() {
     if (root.lexeme == "#") {
         return reshape();
     }
     return NIL;
 }
 
-Value BinaryExpr::reshape() {
-    Value larg = left->eval();
+std::unique_ptr<Matrix> BinaryExpr::reshape() {
+    std::unique_ptr<Matrix> larg = left->eval();
 
     Shape *shape = larg->get_shape();
 

@@ -38,7 +38,7 @@ bool Matrix::is_complex() {
     return is_scalar() && (*data)[0].type == NumReal;
 }
 
-Number Matrix::at(unsigned long index) const {
+Number &Matrix::at(unsigned long index) const {
     return data->at(index);
 }
 
@@ -55,6 +55,10 @@ unsigned long Matrix::count() const {
 }
 
 std::ostream &operator<<(std::ostream &os, const Matrix &matrix) {
+    // don't print nil value
+    if (matrix.shape == nullptr) {
+        return os;
+    }
     for (unsigned long i = 0; i < matrix.count(); i++) {
         os << matrix.at(i);
         if (i < matrix.count() - 1) {

@@ -26,13 +26,11 @@ class Matrix {
     bool is_real();
     bool is_complex();
 
-    Number at(unsigned long index) const;
+    Number &at(unsigned long index) const;
     Shape *get_shape();
     unsigned long count() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Matrix &matrix);
 };
-
-typedef std::unique_ptr<Matrix> Value;
 
 #endif

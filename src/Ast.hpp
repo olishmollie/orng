@@ -19,7 +19,7 @@ class RuntimeError : public OrngError {
 };
 
 struct Expr {
-    virtual Value eval() = 0;
+    virtual std::unique_ptr<Matrix> eval() = 0;
     virtual std::string to_string(int depth = 0) = 0;
     virtual ~Expr() = default;
 };
@@ -27,7 +27,7 @@ struct Expr {
 struct Ast {
     Expr *root;
     std::string to_string(int depth = 0);
-    Value eval();
+    std::unique_ptr<Matrix> eval();
     ~Ast();
 };
 
@@ -40,7 +40,7 @@ class LiteralExpr : public Expr {
 
   public:
     LiteralExpr(Token root, Matrix *matrix);
-    Value eval();
+    std::unique_ptr<Matrix> eval();
 };
 
 class UnaryExpr : public Expr {
@@ -50,12 +50,15 @@ class UnaryExpr : public Expr {
     std::string to_string(int depth = 0);
     ~UnaryExpr();
 
-    Value iota();
-    Value shape();
+    std::unique_ptr<Matrix> iota();
+    std::unique_ptr<Matrix> shape();
+    std::unique_ptr<Matrix> pi();
+    std::unique_ptr<Matrix> abs();
+    std::unique_ptr<Matrix> roll();
 
   public:
     UnaryExpr(Token root, Expr *next);
-    Value eval();
+    std::unique_ptr<Matrix> eval();
 };
 
 class BinaryExpr : public Expr {
@@ -66,11 +69,11 @@ class BinaryExpr : public Expr {
     std::string to_string(int depth = 0);
     ~BinaryExpr();
 
-    Value reshape();
+    std::unique_ptr<Matrix> reshape();
 
   public:
     BinaryExpr(Token root, Expr *left, Expr *right);
-    Value eval();
+    std::unique_ptr<Matrix> eval();
 };
 
 #endif

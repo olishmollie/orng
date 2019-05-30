@@ -2,6 +2,7 @@
 #define NUMBER_H
 
 #include <complex>
+#include <iostream>
 
 enum NumberType {
     NumInteger,
@@ -21,6 +22,20 @@ struct Number {
     Number(long integer);
     Number(long double real);
     Number(std::complex<long double> complex);
+
+    bool is_integer() const;
+
+    bool operator<(int n) const;
+    bool operator<=(int n) const;
+
+    bool operator==(const Number &n) const;
+    bool operator<(const Number &n) const;
+    bool operator<=(const Number &n) const;
+    bool operator>(const Number &n) const;
+    bool operator>=(const Number &n) const;
+
+    Number &operator*=(int x);
+    Number &operator*=(long double x);
 
     friend std::ostream &operator<<(std::ostream &os, const Number &n);
 };
