@@ -71,6 +71,7 @@ class BinaryExpr : public Expr {
 
     std::unique_ptr<Matrix> reshape();
     std::unique_ptr<Matrix> deal();
+    std::unique_ptr<Matrix> add();
 
   public:
     BinaryExpr(Token root, Expr *left, Expr *right);

@@ -34,6 +34,10 @@ struct Number {
     bool operator>(const Number &n) const;
     bool operator>=(const Number &n) const;
 
+    Number operator+(const Number &n) const;
+
+    Number &operator+=(const Number &n);
+
     Number &operator*=(int x);
     Number &operator*=(long double x);
 

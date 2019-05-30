@@ -204,7 +204,11 @@ std::unique_ptr<Matrix> BinaryExpr::eval() {
         return reshape();
     } else if (root.lexeme == "?.") {
         return deal();
+    } else if (root.lexeme == "+") {
+        return add();
     }
+
+    std::cout << "unimplemented" << std::endl;
     return NIL;
 }
 
@@ -252,6 +256,32 @@ std::unique_ptr<Matrix> BinaryExpr::deal() {
     std::shuffle(vec->begin(), vec->end(), std::default_random_engine(SEED));
 
     return std::unique_ptr<Matrix>(new Matrix(vec));
+}
+
+std::unique_ptr<Matrix> BinaryExpr::add() {
+    std::unique_ptr<Matrix> larg = left->eval();
+    std::unique_ptr<Matrix> rarg = right->eval();
+    if (rarg->is_nil()) {
+        throw "function valence not fit";
+    }
+
+    // add scalar to matrix
+    if (larg->is_scalar()) {
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            rarg->at(i) += larg->at(0);
+        }
+        return rarg;
+    }
+
+    if (larg->count() != rarg->count()) {
+        throw "length error";
+    }
+
+    for (unsigned long i = 0; i < rarg->count(); i++) {
+        rarg->at(i) += larg->at(i);
+    }
+
+    return rarg;
 }
 
 BinaryExpr::~BinaryExpr() {

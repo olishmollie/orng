@@ -122,6 +122,59 @@ bool Number::operator>=(const Number &n) const {
     return *this > n || *this == n;
 }
 
+Number Number::operator+(const Number &n) const {
+    Number sum = *this;
+    sum += n;
+    return sum;
+}
+
+Number &Number::operator+=(const Number &n) {
+    NumberType tmp = type;
+
+    switch (tmp) {
+    case NumInteger:
+        switch (n.type) {
+        case NumInteger:
+            integer += n.integer;
+            break;
+        case NumReal:
+            type = NumReal;
+            real = integer + n.real;
+            break;
+        case NumComplex:
+            type = NumComplex;
+            complex = static_cast<long double>(integer) + n.complex;
+        }
+        break;
+    case NumReal:
+        switch (n.type) {
+        case NumInteger:
+            real += n.integer;
+            break;
+        case NumReal:
+            real += n.real;
+            break;
+        case NumComplex:
+            type = NumComplex;
+            complex = real + n.complex;
+        }
+        break;
+    case NumComplex:
+        switch (n.type) {
+        case NumInteger:
+            complex += static_cast<long double>(n.integer);
+            break;
+        case NumReal:
+            complex += n.real;
+            break;
+        case NumComplex:
+            complex += n.complex;
+        }
+    }
+
+    return *this;
+}
+
 Number &Number::operator*=(int x) {
     switch (type) {
     case NumInteger:
