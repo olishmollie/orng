@@ -71,7 +71,10 @@ Expr *Parser::operand(bool paren_ok) {
     case TokLeftParen:
         left = atom();
         break;
+    case Eof:
+        return new LiteralExpr(curtok, new Matrix());
     default:
+        std::cout << "token = " << tok << std::endl;
         throw ParseError("unexpected token", source, tok.position);
     }
 
@@ -88,8 +91,8 @@ Expr *Parser::atom() {
     Token tok = curtok;
     switch (tok.type) {
     case TokIdentifier:
-        next();
-        return new LiteralExpr(curtok, new Value(tok.lexeme));
+        // next();
+        throw ParseError("unimplmented feature", source, tok.position);
     case TokInteger:
     case TokReal:
     case TokComplex:
@@ -156,5 +159,5 @@ Expr *Parser::vector() {
         next();
     }
 
-    return new LiteralExpr(tok, new Value(vec));
+    return new LiteralExpr(tok, new Matrix(vec));
 }

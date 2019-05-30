@@ -6,6 +6,6 @@ Interpreter::Interpreter(char *source_)
 void Interpreter::read_eval_print() {
     Ast ast = parser.parse();
 
-    std::unique_ptr<Value> result = ast.eval();
-    std::cout << *result << std::endl;
+    Value result = ast.eval();
+    std::cout << *result;
 }

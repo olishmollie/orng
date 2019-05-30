@@ -41,6 +41,8 @@ int main() {
             interpreter.read_eval_print();
         } catch (OrngError &e) {
             cerr << e.caused_by() << endl;
+        } catch (const char *e) {
+            cerr << e << endl;
         }
 
         free(buf);

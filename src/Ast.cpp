@@ -23,7 +23,7 @@ std::string Ast::to_string(int depth) {
     return root->to_string();
 }
 
-std::unique_ptr<Value> Ast::eval() {
+Value Ast::eval() {
     return root->eval();
 }
 
@@ -31,20 +31,22 @@ Ast::~Ast() {
     delete root;
 }
 
-LiteralExpr::LiteralExpr(Token root_, Value *value_)
-    : root{root_}, value{value_} {}
+LiteralExpr::LiteralExpr(Token root_, Matrix *matrix_)
+    : root{root_}, matrix{matrix_} {}
 
 std::string LiteralExpr::to_string(int depth) {
     std::ostringstream os;
-    os << "<LiteralExpr " << *value << ">";
+    os << "<LiteralExpr " << *matrix << ">";
     return os.str();
 }
 
-std::unique_ptr<Value> LiteralExpr::eval() {
-    return std::unique_ptr<Value>(value);
+Value LiteralExpr::eval() {
+    return std::unique_ptr<Matrix>(matrix);
 }
 
 LiteralExpr::~LiteralExpr() {}
+
+UnaryExpr::UnaryExpr(Token root_, Expr *next_) : root{root_}, next{next_} {}
 
 std::string UnaryExpr::to_string(int depth) {
     std::ostringstream os;
@@ -56,22 +58,27 @@ std::string UnaryExpr::to_string(int depth) {
     return os.str();
 }
 
-std::unique_ptr<Value> UnaryExpr::eval() {
+Value UnaryExpr::eval() {
     if (root.lexeme == "!") {
         return iota();
+    } else if (root.lexeme == "#") {
+        return shape();
     }
-    return nullptr;
+    return NIL;
 }
 
-std::unique_ptr<Value> UnaryExpr::iota() {
-    std::unique_ptr<Value> arg = next->eval();
-    if (!arg->is_scalar() && arg->matrix->at(0).type != NumInteger) {
+Value UnaryExpr::iota() {
+    Value arg = next->eval();
+    if (!arg->is_integer()) {
         throw "domain error";
     }
 
-    long size = arg->matrix->at(0).integer;
+    long size = arg->at(0).integer;
     if (size < 0) {
         throw "domain error";
+    }
+    if (size == 0) {
+        return NIL;
     }
 
     std::vector<Number> *vec = new std::vector<Number>();
@@ -79,7 +86,11 @@ std::unique_ptr<Value> UnaryExpr::iota() {
         vec->push_back(Number(i + 1));
     }
 
-    return std::unique_ptr<Value>(new Value(vec));
+    return std::unique_ptr<Matrix>(new Matrix(vec));
+}
+
+Value UnaryExpr::shape() {
+    Value arg = next->eval();
 }
 
 UnaryExpr::~UnaryExpr() {
@@ -87,6 +98,9 @@ UnaryExpr::~UnaryExpr() {
         delete next;
     }
 }
+
+BinaryExpr::BinaryExpr(Token root_, Expr *left_, Expr *right_)
+    : root{root_}, left{left_}, right{right_} {}
 
 std::string BinaryExpr::to_string(int depth) {
     std::ostringstream os;
@@ -102,8 +116,19 @@ std::string BinaryExpr::to_string(int depth) {
     return os.str();
 }
 
-std::unique_ptr<Value> BinaryExpr::eval() {
-    return nullptr;
+Value BinaryExpr::eval() {
+    if (root.lexeme == "#") {
+        return reshape();
+    }
+    return NIL;
+}
+
+Value BinaryExpr::reshape() {
+    Value larg = left->eval();
+
+    Shape *shape = larg->get_shape();
+
+    return NIL;
 }
 
 BinaryExpr::~BinaryExpr() {

@@ -2,9 +2,9 @@
 #define AST_H
 
 #include "Error.hpp"
+#include "Matrix.hpp"
 #include "Number.hpp"
 #include "Token.hpp"
-#include "Value.hpp"
 
 #include <vector>
 
@@ -19,7 +19,7 @@ class RuntimeError : public OrngError {
 };
 
 struct Expr {
-    virtual std::unique_ptr<Value> eval() = 0;
+    virtual Value eval() = 0;
     virtual std::string to_string(int depth = 0) = 0;
     virtual ~Expr() = default;
 };
@@ -27,21 +27,20 @@ struct Expr {
 struct Ast {
     Expr *root;
     std::string to_string(int depth = 0);
-    std::unique_ptr<Value> eval();
+    Value eval();
     ~Ast();
 };
 
 class LiteralExpr : public Expr {
   private:
     Token root;
-    Value *value;
+    Matrix *matrix;
     std::string to_string(int depth = 0);
     ~LiteralExpr();
 
   public:
-    LiteralExpr(Token root, Value *value);
-
-    std::unique_ptr<Value> eval();
+    LiteralExpr(Token root, Matrix *matrix);
+    Value eval();
 };
 
 class UnaryExpr : public Expr {
@@ -51,11 +50,12 @@ class UnaryExpr : public Expr {
     std::string to_string(int depth = 0);
     ~UnaryExpr();
 
-  public:
-    UnaryExpr(Token root, Expr *next) : root{root}, next{next} {}
-    std::unique_ptr<Value> eval();
+    Value iota();
+    Value shape();
 
-    std::unique_ptr<Value> iota();
+  public:
+    UnaryExpr(Token root, Expr *next);
+    Value eval();
 };
 
 class BinaryExpr : public Expr {
@@ -63,14 +63,14 @@ class BinaryExpr : public Expr {
     Token root;
     Expr *left;
     Expr *right;
-
     std::string to_string(int depth = 0);
     ~BinaryExpr();
 
+    Value reshape();
+
   public:
-    BinaryExpr(Token root, Expr *left, Expr *right)
-        : root{root}, left{left}, right{right} {}
-    std::unique_ptr<Value> eval();
+    BinaryExpr(Token root, Expr *left, Expr *right);
+    Value eval();
 };
 
 #endif
