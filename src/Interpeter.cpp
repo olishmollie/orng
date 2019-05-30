@@ -1,4 +1,4 @@
-#include "Interpreter.h"
+#include "Interpreter.hpp"
 
 Interpreter::Interpreter(char *source_)
     : source{static_cast<std::string>(source_)}, parser{Parser(source_)} {}

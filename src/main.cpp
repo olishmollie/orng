@@ -1,6 +1,6 @@
-#include "Interpreter.h"
-#include "Lexer.h"
-#include "Parser.h"
+#include "Interpreter.hpp"
+#include "Lexer.hpp"
+#include "Parser.hpp"
 
 #include <iostream>
 #include <readline/history.h>

@@ -1,10 +1,10 @@
 #ifndef AST_H
 #define AST_H
 
-#include "Error.h"
-#include "Number.h"
-#include "Token.h"
-#include "Value.h"
+#include "Error.hpp"
+#include "Number.hpp"
+#include "Token.hpp"
+#include "Value.hpp"
 
 #include <vector>
 

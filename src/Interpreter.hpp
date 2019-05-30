@@ -1,9 +1,9 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 
-#include "Ast.h"
-#include "Parser.h"
-#include "Value.h"
+#include "Ast.hpp"
+#include "Parser.hpp"
+#include "Value.hpp"
 
 #include <string>
 

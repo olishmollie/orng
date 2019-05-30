@@ -1,9 +1,9 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "Ast.h"
-#include "Error.h"
-#include "Lexer.h"
+#include "Ast.hpp"
+#include "Error.hpp"
+#include "Lexer.hpp"
 
 class ParseError : public OrngError {
     std::string msg;

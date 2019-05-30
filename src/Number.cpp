@@ -1,4 +1,4 @@
-#include "Number.h"
+#include "Number.hpp"
 
 Number::Number(long n) {
     type = NumInteger;

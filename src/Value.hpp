@@ -1,7 +1,7 @@
 #ifndef VALUE_H
 #define VALUE_H
 
-#include "Number.h"
+#include "Number.hpp"
 
 #include <iostream>
 #include <string>

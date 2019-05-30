@@ -1,8 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "Error.h"
-#include "Token.h"
+#include "Error.hpp"
+#include "Token.hpp"
 
 #include <string>
 #include <vector>

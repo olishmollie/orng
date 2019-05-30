@@ -1,6 +1,5 @@
-#include "Lexer.h"
+#include "Lexer.hpp"
 
-#include <ctype.h>
 #include <sstream>
 #include <vector>
 
