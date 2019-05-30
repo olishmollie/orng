@@ -1,33 +1,31 @@
 #include "Value.hpp"
 
 Value::Value(std::string identifier_)
-    : type{Identifier}, identifier{identifier_} {}
+    : type{ValIdentifier}, identifier{identifier_} {}
 
-Value::Value(std::vector<Number> *vec_) : type{Vector}, vec{vec_} {}
+Value::Value(std::vector<Number> *vec) : type{ValMatrix} {
+    matrix = new Matrix(vec);
+}
 
 Value::~Value() {
-    if (type == Vector) {
-        delete vec;
+    if (type == ValMatrix) {
+        delete matrix;
     }
 }
 
 bool Value::is_scalar() {
-    return type == Vector && vec->size() == 1;
-}
-
-Number Value::at(unsigned long i) {
-    return vec->at(i);
+    return type == ValMatrix && matrix->size() == 1;
 }
 
 std::ostream &operator<<(std::ostream &os, const Value &v) {
     switch (v.type) {
-    case Identifier:
+    case ValIdentifier:
         os << v.identifier;
         break;
-    case Vector:
-        for (int i = 0; i < v.vec->size(); i++) {
-            os << (*v.vec)[i];
-            if (i < v.vec->size() - 1) {
+    case ValMatrix:
+        for (unsigned long i = 0; i < v.matrix->size(); i++) {
+            os << v.matrix->at(i);
+            if (i < v.matrix->size() - 1) {
                 os << " ";
             }
         }

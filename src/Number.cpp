@@ -1,5 +1,10 @@
 #include "Number.hpp"
 
+Number::Number() {
+    type = NumInteger;
+    integer = 0;
+}
+
 Number::Number(long n) {
     type = NumInteger;
     integer = n;

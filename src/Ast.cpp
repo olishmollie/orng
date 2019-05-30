@@ -44,6 +44,8 @@ std::unique_ptr<Value> LiteralExpr::eval() {
     return std::unique_ptr<Value>(value);
 }
 
+LiteralExpr::~LiteralExpr() {}
+
 std::string UnaryExpr::to_string(int depth) {
     std::ostringstream os;
     os << "<UnaryExpr '" << root.lexeme << "'" << std::endl;
@@ -63,11 +65,11 @@ std::unique_ptr<Value> UnaryExpr::eval() {
 
 std::unique_ptr<Value> UnaryExpr::iota() {
     std::unique_ptr<Value> arg = next->eval();
-    if (!arg->is_scalar() && arg->at(0).type != NumInteger) {
+    if (!arg->is_scalar() && arg->matrix->at(0).type != NumInteger) {
         throw "domain error";
     }
 
-    long size = arg->vec->at(0).integer;
+    long size = arg->matrix->at(0).integer;
     if (size < 0) {
         throw "domain error";
     }

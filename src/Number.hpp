@@ -17,8 +17,9 @@ struct Number {
         std::complex<long double> complex;
     };
 
+    Number();
     Number(long integer);
-    Number(long double);
+    Number(long double real);
     Number(std::complex<long double> complex);
 
     friend std::ostream &operator<<(std::ostream &os, const Number &n);

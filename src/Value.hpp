@@ -1,19 +1,20 @@
 #ifndef VALUE_H
 #define VALUE_H
 
+#include "Matrix.hpp"
 #include "Number.hpp"
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-enum ValueType { Identifier, Vector };
+enum ValueType { ValIdentifier, ValMatrix };
 
 struct Value {
     ValueType type;
     union {
         std::string identifier;
-        std::vector<Number> *vec;
+        Matrix *matrix;
     };
 
     Value(std::string identifier);
@@ -21,7 +22,6 @@ struct Value {
     ~Value();
 
     bool is_scalar();
-    Number at(unsigned long i);
 
     friend std::ostream &operator<<(std::ostream &os, const Value &v);
 };

@@ -36,6 +36,7 @@ class LiteralExpr : public Expr {
     Token root;
     Value *value;
     std::string to_string(int depth = 0);
+    ~LiteralExpr();
 
   public:
     LiteralExpr(Token root, Value *value);
@@ -47,13 +48,12 @@ class UnaryExpr : public Expr {
   private:
     Token root;
     Expr *next;
-
     std::string to_string(int depth = 0);
+    ~UnaryExpr();
 
   public:
     UnaryExpr(Token root, Expr *next) : root{root}, next{next} {}
     std::unique_ptr<Value> eval();
-    ~UnaryExpr();
 
     std::unique_ptr<Value> iota();
 };
@@ -65,12 +65,12 @@ class BinaryExpr : public Expr {
     Expr *right;
 
     std::string to_string(int depth = 0);
+    ~BinaryExpr();
 
   public:
     BinaryExpr(Token root, Expr *left, Expr *right)
         : root{root}, left{left}, right{right} {}
     std::unique_ptr<Value> eval();
-    ~BinaryExpr();
 };
 
 #endif
