@@ -65,7 +65,6 @@ bool Number::operator==(const Number &n) const {
 }
 
 bool Number::operator<(const Number &n) const {
-
     if (n.type == NumInteger) {
         switch (type) {
         case NumInteger:
@@ -122,13 +121,7 @@ bool Number::operator>=(const Number &n) const {
     return *this > n || *this == n;
 }
 
-Number Number::operator+(const Number &n) const {
-    Number sum = *this;
-    sum += n;
-    return sum;
-}
-
-Number &Number::operator+=(const Number &n) {
+Number &Number::operator+=(Number &n) {
     NumberType tmp = type;
 
     switch (tmp) {
@@ -175,6 +168,24 @@ Number &Number::operator+=(const Number &n) {
     return *this;
 }
 
+Number &Number::operator-=(Number &n) {
+    n *= -1;
+    *this += n;
+    return *this;
+}
+
+Number Number::operator+(Number &n) const {
+    Number sum = *this;
+    sum += n;
+    return sum;
+}
+
+Number Number::operator-(Number &n) const {
+    Number sub = *this;
+    sub -= n;
+    return sub;
+}
+
 Number &Number::operator*=(int x) {
     switch (type) {
     case NumInteger:
@@ -206,6 +217,17 @@ Number &Number::operator*=(long double x) {
     }
 
     return *this;
+}
+
+Number Number::abs_val() const {
+    switch (type) {
+    case NumInteger:
+        return Number(abs(real));
+    case NumReal:
+        return Number(abs(real));
+    case NumComplex:
+        return Number(abs(complex));
+    }
 }
 
 static void print_int(std::ostream &os, long n) {

@@ -55,6 +55,7 @@ class UnaryExpr : public Expr {
     std::unique_ptr<Matrix> pi();
     std::unique_ptr<Matrix> abs();
     std::unique_ptr<Matrix> roll();
+    std::unique_ptr<Matrix> negate();
 
   public:
     UnaryExpr(Token root, Expr *next);
@@ -72,6 +73,7 @@ class BinaryExpr : public Expr {
     std::unique_ptr<Matrix> reshape();
     std::unique_ptr<Matrix> deal();
     std::unique_ptr<Matrix> add();
+    std::unique_ptr<Matrix> minus();
 
   public:
     BinaryExpr(Token root, Expr *left, Expr *right);

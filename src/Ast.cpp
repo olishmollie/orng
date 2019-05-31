@@ -74,6 +74,8 @@ std::unique_ptr<Matrix> UnaryExpr::eval() {
         return abs();
     } else if (root.lexeme == "?.") {
         return roll();
+    } else if (root.lexeme == "-") {
+        return negate();
     }
     return NIL;
 }
@@ -140,11 +142,7 @@ std::unique_ptr<Matrix> UnaryExpr::abs() {
     }
 
     for (unsigned long i = 0; i < arg->count(); i++) {
-        Number n = arg->at(i);
-        if (n < 0) {
-            n *= -1;
-            arg->at(i) = n;
-        }
+        arg->at(i) = arg->at(i).abs_val();
     }
 
     return arg;
@@ -172,6 +170,17 @@ std::unique_ptr<Matrix> UnaryExpr::roll() {
     }
 
     return std::unique_ptr<Matrix>(new Matrix(vec));
+}
+
+std::unique_ptr<Matrix> UnaryExpr::negate() {
+    std::unique_ptr<Matrix> arg = next->eval();
+    if (arg->is_nil()) {
+        throw "domain error";
+    }
+    for (unsigned long i = 0; i < arg->count(); i++) {
+        arg->at(i) *= -1;
+    }
+    return arg;
 }
 
 UnaryExpr::~UnaryExpr() {
@@ -206,6 +215,8 @@ std::unique_ptr<Matrix> BinaryExpr::eval() {
         return deal();
     } else if (root.lexeme == "+") {
         return add();
+    } else if (root.lexeme == "-") {
+        return minus();
     }
 
     std::cout << "unimplemented" << std::endl;
@@ -277,6 +288,32 @@ std::unique_ptr<Matrix> BinaryExpr::add() {
 
     for (unsigned long i = 0; i < rarg->count(); i++) {
         rarg->at(i) += larg->at(i);
+    }
+
+    return rarg;
+}
+
+std::unique_ptr<Matrix> BinaryExpr::minus() {
+    std::unique_ptr<Matrix> larg = left->eval();
+    std::unique_ptr<Matrix> rarg = right->eval();
+    if (rarg->is_nil()) {
+        throw "function valence not fit";
+    }
+
+    // add scalar to matrix
+    if (larg->is_scalar()) {
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            rarg->at(i) = larg->at(0) - rarg->at(0);
+        }
+        return rarg;
+    }
+
+    if (larg->count() != rarg->count()) {
+        throw "length error";
+    }
+
+    for (unsigned long i = 0; i < rarg->count(); i++) {
+        rarg->at(i) = larg->at(i) - rarg->at(i);
     }
 
     return rarg;

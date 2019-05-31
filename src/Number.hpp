@@ -34,12 +34,16 @@ struct Number {
     bool operator>(const Number &n) const;
     bool operator>=(const Number &n) const;
 
-    Number operator+(const Number &n) const;
+    Number &operator+=(Number &n);
+    Number &operator-=(Number &n);
 
-    Number &operator+=(const Number &n);
+    Number operator+(Number &n) const;
+    Number operator-(Number &n) const;
 
     Number &operator*=(int x);
     Number &operator*=(long double x);
+
+    Number abs_val() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Number &n);
 };
