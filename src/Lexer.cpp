@@ -31,15 +31,17 @@ void Lexer::ignore_char() {
 }
 
 char Lexer::next_char() {
-    char next{source[end]};
     if (!eof()) {
-        end++;
+        return source[end++];
     }
-    return next;
+    return 0;
 }
 
 char Lexer::peek_char() {
-    return source[end];
+    if (!eof()) {
+        return source[end];
+    }
+    return 0;
 }
 
 char Lexer::prev_char() {
