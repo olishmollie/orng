@@ -208,20 +208,39 @@ Number &Number::operator*=(long double x) {
     return *this;
 }
 
+static void print_int(std::ostream &os, long n) {
+    if (n < 0) {
+        os << "_";
+    }
+    os << abs(n);
+}
+
+static void print_real(std::ostream &os, long double real) {
+    if (real < 0) {
+        os << "_";
+    }
+    os << abs(real);
+}
+
+static void print_complex(std::ostream &os, std::complex<long double> complex) {
+    print_real(os, complex.real());
+    os << "j";
+    print_real(os, complex.imag());
+}
+
 std::ostream &operator<<(std::ostream &os, const Number &n) {
     std::ios_base::fmtflags f(os.flags());
 
     switch (n.type) {
     case NumInteger:
-        os << n.integer;
+        print_int(os, n.integer);
         break;
     case NumReal:
         // os << std::setprecision(9) << std::fixed;
-        os << n.real;
+        print_real(os, n.real);
         break;
     case NumComplex:
-        os << n.complex.real() << (n.complex.imag() > 0 ? "+" : "")
-           << n.complex.imag() << "i";
+        print_complex(os, n.complex);
     }
 
     os.flags(f);

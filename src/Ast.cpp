@@ -214,9 +214,7 @@ std::unique_ptr<Matrix> BinaryExpr::eval() {
 
 std::unique_ptr<Matrix> BinaryExpr::reshape() {
     std::unique_ptr<Matrix> larg = left->eval();
-
     Shape *shape = larg->get_shape();
-
     return NIL;
 }
 
