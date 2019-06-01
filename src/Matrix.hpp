@@ -17,6 +17,8 @@ class Matrix {
 
   public:
     Matrix(); // nil value
+
+    Matrix(const Matrix &m);
     Matrix(unsigned long rows, unsigned long cols);
     Matrix(std::vector<Number> *data);
     ~Matrix();

@@ -24,6 +24,8 @@ struct Number {
     Number(std::complex<long double> complex);
 
     bool is_integer() const;
+    bool is_real() const;
+    bool is_complex() const;
 
     bool operator<(int n) const;
     bool operator<=(int n) const;
@@ -36,12 +38,18 @@ struct Number {
 
     Number &operator+=(Number &n);
     Number &operator-=(Number &n);
+    Number &operator*=(Number &n);
+    Number &operator/=(Number &n);
 
     Number operator+(Number &n) const;
     Number operator-(Number &n) const;
+    Number operator*(Number &n) const;
+    Number operator/(Number &n) const;
 
     Number &operator*=(int x);
     Number &operator*=(long double x);
+
+    Number operator*(long double x);
 
     Number abs_val() const;
 

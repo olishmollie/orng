@@ -26,6 +26,14 @@ bool Number::is_integer() const {
     return type == NumInteger;
 }
 
+bool Number::is_real() const {
+    return type == NumReal;
+}
+
+bool Number::is_complex() const {
+    return type == NumComplex;
+}
+
 bool Number::operator<(int n) const {
     switch (type) {
     case NumInteger:
@@ -174,6 +182,101 @@ Number &Number::operator-=(Number &n) {
     return *this;
 }
 
+Number &Number::operator*=(Number &n) {
+    NumberType tmp = type;
+
+    switch (tmp) {
+    case NumInteger:
+        switch (n.type) {
+        case NumInteger:
+            integer *= n.integer;
+            break;
+        case NumReal:
+            type = NumReal;
+            real = integer * n.real;
+            break;
+        case NumComplex:
+            type = NumComplex;
+            complex = static_cast<long double>(integer) * n.complex;
+        }
+        break;
+    case NumReal:
+        switch (n.type) {
+        case NumInteger:
+            real *= n.integer;
+            break;
+        case NumReal:
+            real *= n.real;
+            break;
+        case NumComplex:
+            type = NumComplex;
+            complex = real * n.complex;
+        }
+        break;
+    case NumComplex:
+        switch (n.type) {
+        case NumInteger:
+            complex *= static_cast<long double>(n.integer);
+            break;
+        case NumReal:
+            complex *= n.real;
+            break;
+        case NumComplex:
+            complex *= n.complex;
+        }
+    }
+
+    return *this;
+}
+
+Number &Number::operator/=(Number &n) {
+    NumberType tmp = type;
+
+    switch (tmp) {
+    case NumInteger:
+        switch (n.type) {
+        case NumInteger:
+            type = NumReal;
+            real = static_cast<long double>(integer) / n.integer;
+            break;
+        case NumReal:
+            type = NumReal;
+            real = integer / n.real;
+            break;
+        case NumComplex:
+            type = NumComplex;
+            complex = static_cast<long double>(integer) / n.complex;
+        }
+        break;
+    case NumReal:
+        switch (n.type) {
+        case NumInteger:
+            real /= n.integer;
+            break;
+        case NumReal:
+            real /= n.real;
+            break;
+        case NumComplex:
+            type = NumComplex;
+            complex = real / n.complex;
+        }
+        break;
+    case NumComplex:
+        switch (n.type) {
+        case NumInteger:
+            complex /= static_cast<long double>(n.integer);
+            break;
+        case NumReal:
+            complex /= n.real;
+            break;
+        case NumComplex:
+            complex /= n.complex;
+        }
+    }
+
+    return *this;
+}
+
 Number Number::operator+(Number &n) const {
     Number sum = *this;
     sum += n;
@@ -184,6 +287,18 @@ Number Number::operator-(Number &n) const {
     Number sub = *this;
     sub -= n;
     return sub;
+}
+
+Number Number::operator*(Number &n) const {
+    Number mul = *this;
+    mul *= n;
+    return mul;
+}
+
+Number Number::operator/(Number &n) const {
+    Number div = *this;
+    div /= n;
+    return div;
 }
 
 Number &Number::operator*=(int x) {
@@ -217,6 +332,12 @@ Number &Number::operator*=(long double x) {
     }
 
     return *this;
+}
+
+Number Number::operator*(long double x) {
+    Number n = *this;
+    n *= x;
+    return n;
 }
 
 Number Number::abs_val() const {

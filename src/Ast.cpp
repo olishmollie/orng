@@ -76,6 +76,10 @@ std::unique_ptr<Matrix> UnaryExpr::eval() {
         return roll();
     } else if (root.lexeme == "-") {
         return negate();
+    } else if (root.lexeme == "+") {
+        return conjugate();
+    } else if (root.lexeme == "*") {
+        return signum();
     }
     return NIL;
 }
@@ -107,7 +111,6 @@ std::unique_ptr<Matrix> UnaryExpr::shape() {
     if (arg->is_nil()) {
         throw "domain error";
     }
-
     if (arg->is_scalar()) {
         return NIL;
     }
@@ -128,11 +131,12 @@ std::unique_ptr<Matrix> UnaryExpr::pi() {
         throw "domain error";
     }
 
+    std::vector<Number> *vec = new std::vector<Number>();
     for (unsigned long i = 0; i < arg->count(); i++) {
-        arg->at(i) *= PI;
+        vec->push_back(arg->at(i) * PI);
     }
 
-    return arg;
+    return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
 std::unique_ptr<Matrix> UnaryExpr::abs() {
@@ -141,11 +145,12 @@ std::unique_ptr<Matrix> UnaryExpr::abs() {
         throw "domain error";
     }
 
+    std::vector<Number> *vec = new std::vector<Number>();
     for (unsigned long i = 0; i < arg->count(); i++) {
-        arg->at(i) = arg->at(i).abs_val();
+        vec->push_back(arg->at(i).abs_val());
     }
 
-    return arg;
+    return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
 std::unique_ptr<Matrix> UnaryExpr::roll() {
@@ -177,10 +182,60 @@ std::unique_ptr<Matrix> UnaryExpr::negate() {
     if (arg->is_nil()) {
         throw "domain error";
     }
+
+    std::vector<Number> *vec = new std::vector<Number>();
     for (unsigned long i = 0; i < arg->count(); i++) {
-        arg->at(i) *= -1;
+        vec->push_back(arg->at(i) * -1);
     }
+
     return arg;
+}
+
+std::unique_ptr<Matrix> UnaryExpr::conjugate() {
+    std::unique_ptr<Matrix> arg = next->eval();
+    if (arg->is_nil()) {
+        throw "domain error";
+    }
+
+    std::vector<Number> *vec = new std::vector<Number>();
+    for (unsigned long i = 0; i < arg->count(); i++) {
+        Number num = arg->at(i);
+        if (num.is_complex()) {
+            long double conj = num.complex.imag() * -1;
+            vec->push_back(
+                Number(std::complex<long double>(num.complex.real(), conj)));
+        } else {
+            vec->push_back(num);
+        }
+    }
+
+    return std::unique_ptr<Matrix>(new Matrix(vec));
+}
+
+std::unique_ptr<Matrix> UnaryExpr::signum() {
+    std::unique_ptr<Matrix> arg = next->eval();
+    if (arg->is_nil()) {
+        throw "domain error";
+    }
+
+    std::vector<Number> *vec = new std::vector<Number>();
+    for (unsigned long i = 0; i < arg->count(); i++) {
+        Number num = arg->at(i);
+        if (num.is_integer() || num.is_real()) {
+            if (num < 0) {
+                vec->push_back(Number(-1l));
+            } else if (num > 0l) {
+                vec->push_back(Number(1l));
+            } else {
+                vec->push_back(Number(0l));
+            }
+        } else {
+            Number abs_num = num.abs_val();
+            vec->push_back(num / abs_num);
+        }
+    }
+
+    return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
 UnaryExpr::~UnaryExpr() {
@@ -216,7 +271,11 @@ std::unique_ptr<Matrix> BinaryExpr::eval() {
     } else if (root.lexeme == "+") {
         return add();
     } else if (root.lexeme == "-") {
-        return minus();
+        return subtract();
+    } else if (root.lexeme == "*") {
+        return multiply();
+    } else if (root.lexeme == "%") {
+        return divide();
     }
 
     std::cout << "unimplemented" << std::endl;
@@ -274,10 +333,11 @@ std::unique_ptr<Matrix> BinaryExpr::add() {
         throw "function valence not fit";
     }
 
-    // add scalar to matrix
+    std::vector<Number> *vec = new std::vector<Number>();
+
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            rarg->at(i) += larg->at(0);
+            vec->push_back(rarg->at(i) + larg->at(0));
         }
         return rarg;
     }
@@ -287,23 +347,24 @@ std::unique_ptr<Matrix> BinaryExpr::add() {
     }
 
     for (unsigned long i = 0; i < rarg->count(); i++) {
-        rarg->at(i) += larg->at(i);
+        vec->push_back(rarg->at(i) + larg->at(i));
     }
 
-    return rarg;
+    return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> BinaryExpr::minus() {
+std::unique_ptr<Matrix> BinaryExpr::subtract() {
     std::unique_ptr<Matrix> larg = left->eval();
     std::unique_ptr<Matrix> rarg = right->eval();
     if (rarg->is_nil()) {
         throw "function valence not fit";
     }
 
-    // add scalar to matrix
+    std::vector<Number> *vec = new std::vector<Number>();
+
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            rarg->at(i) = larg->at(0) - rarg->at(0);
+            vec->push_back(rarg->at(i) - larg->at(0));
         }
         return rarg;
     }
@@ -313,10 +374,65 @@ std::unique_ptr<Matrix> BinaryExpr::minus() {
     }
 
     for (unsigned long i = 0; i < rarg->count(); i++) {
-        rarg->at(i) = larg->at(i) - rarg->at(i);
+        vec->push_back(rarg->at(i) - larg->at(i));
     }
 
-    return rarg;
+    return std::unique_ptr<Matrix>(new Matrix(vec));
+}
+
+std::unique_ptr<Matrix> BinaryExpr::multiply() {
+    std::unique_ptr<Matrix> larg = left->eval();
+    std::unique_ptr<Matrix> rarg = right->eval();
+    if (rarg->is_nil()) {
+        throw "function valence not fit";
+    }
+
+    std::vector<Number> *vec = new std::vector<Number>();
+
+    if (larg->is_scalar()) {
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(rarg->at(i) * larg->at(0));
+        }
+        return rarg;
+    }
+
+    if (larg->count() != rarg->count()) {
+        throw "length error";
+    }
+
+    for (unsigned long i = 0; i < rarg->count(); i++) {
+        vec->push_back(rarg->at(i) * larg->at(i));
+    }
+
+    return std::unique_ptr<Matrix>(new Matrix(vec));
+}
+
+std::unique_ptr<Matrix> BinaryExpr::divide() {
+    std::unique_ptr<Matrix> larg = left->eval();
+    std::unique_ptr<Matrix> rarg = right->eval();
+    if (rarg->is_nil()) {
+        throw "function valence not fit";
+    }
+
+    std::vector<Number> *vec = new std::vector<Number>();
+
+    if (larg->is_scalar()) {
+        Number n = larg->at(0);
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(rarg->at(i) / n);
+        }
+        return rarg;
+    }
+
+    if (larg->count() != rarg->count()) {
+        throw "length error";
+    }
+
+    for (unsigned long i = 0; i < rarg->count(); i++) {
+        vec->push_back(rarg->at(i) / larg->at(i));
+    }
+
+    return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
 BinaryExpr::~BinaryExpr() {

@@ -7,6 +7,11 @@ Matrix::Matrix() {
     data = nullptr;
 }
 
+Matrix::Matrix(const Matrix &m) {
+    shape = m.shape;
+    data = m.data;
+}
+
 Matrix::Matrix(unsigned long rows_, unsigned long cols_) {
     shape = new Shape{rows_, cols_};
     data =

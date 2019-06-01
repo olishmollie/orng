@@ -56,6 +56,8 @@ class UnaryExpr : public Expr {
     std::unique_ptr<Matrix> abs();
     std::unique_ptr<Matrix> roll();
     std::unique_ptr<Matrix> negate();
+    std::unique_ptr<Matrix> conjugate();
+    std::unique_ptr<Matrix> signum();
 
   public:
     UnaryExpr(Token root, Expr *next);
@@ -73,7 +75,9 @@ class BinaryExpr : public Expr {
     std::unique_ptr<Matrix> reshape();
     std::unique_ptr<Matrix> deal();
     std::unique_ptr<Matrix> add();
-    std::unique_ptr<Matrix> minus();
+    std::unique_ptr<Matrix> subtract();
+    std::unique_ptr<Matrix> multiply();
+    std::unique_ptr<Matrix> divide();
 
   public:
     BinaryExpr(Token root, Expr *left, Expr *right);
