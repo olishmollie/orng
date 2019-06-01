@@ -84,7 +84,7 @@ std::unique_ptr<Matrix> UnaryExpr::eval() {
     return NIL;
 }
 
-std::unique_ptr<Matrix> UnaryExpr::iota() {
+std::unique_ptr<Matrix> UnaryExpr::iota() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil() || !arg->is_integer()) {
         throw "domain error";
@@ -106,7 +106,7 @@ std::unique_ptr<Matrix> UnaryExpr::iota() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> UnaryExpr::shape() {
+std::unique_ptr<Matrix> UnaryExpr::shape() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil()) {
         throw "domain error";
@@ -125,7 +125,7 @@ std::unique_ptr<Matrix> UnaryExpr::shape() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> UnaryExpr::pi() {
+std::unique_ptr<Matrix> UnaryExpr::pi() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil()) {
         throw "domain error";
@@ -139,7 +139,7 @@ std::unique_ptr<Matrix> UnaryExpr::pi() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> UnaryExpr::abs() {
+std::unique_ptr<Matrix> UnaryExpr::abs() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil()) {
         throw "domain error";
@@ -153,7 +153,7 @@ std::unique_ptr<Matrix> UnaryExpr::abs() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> UnaryExpr::roll() {
+std::unique_ptr<Matrix> UnaryExpr::roll() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil()) {
         throw "domain error";
@@ -177,7 +177,7 @@ std::unique_ptr<Matrix> UnaryExpr::roll() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> UnaryExpr::negate() {
+std::unique_ptr<Matrix> UnaryExpr::negate() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil()) {
         throw "domain error";
@@ -191,7 +191,7 @@ std::unique_ptr<Matrix> UnaryExpr::negate() {
     return arg;
 }
 
-std::unique_ptr<Matrix> UnaryExpr::conjugate() {
+std::unique_ptr<Matrix> UnaryExpr::conjugate() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil()) {
         throw "domain error";
@@ -212,7 +212,7 @@ std::unique_ptr<Matrix> UnaryExpr::conjugate() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> UnaryExpr::signum() {
+std::unique_ptr<Matrix> UnaryExpr::signum() const {
     std::unique_ptr<Matrix> arg = next->eval();
     if (arg->is_nil()) {
         throw "domain error";
@@ -282,13 +282,13 @@ std::unique_ptr<Matrix> BinaryExpr::eval() {
     return NIL;
 }
 
-std::unique_ptr<Matrix> BinaryExpr::reshape() {
+std::unique_ptr<Matrix> BinaryExpr::reshape() const {
     std::unique_ptr<Matrix> larg = left->eval();
     Shape *shape = larg->get_shape();
     return NIL;
 }
 
-std::unique_ptr<Matrix> BinaryExpr::deal() {
+std::unique_ptr<Matrix> BinaryExpr::deal() const {
     std::unique_ptr<Matrix> larg = left->eval();
     std::unique_ptr<Matrix> rarg = right->eval();
     if (rarg->is_nil()) {
@@ -326,7 +326,7 @@ std::unique_ptr<Matrix> BinaryExpr::deal() {
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> BinaryExpr::add() {
+std::unique_ptr<Matrix> BinaryExpr::add() const {
     std::unique_ptr<Matrix> larg = left->eval();
     std::unique_ptr<Matrix> rarg = right->eval();
     if (rarg->is_nil()) {
@@ -337,23 +337,21 @@ std::unique_ptr<Matrix> BinaryExpr::add() {
 
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            vec->push_back(rarg->at(i) + larg->at(0));
+            vec->push_back(larg->at(i) + rarg->at(0));
         }
-        return rarg;
-    }
-
-    if (larg->count() != rarg->count()) {
-        throw "length error";
-    }
-
-    for (unsigned long i = 0; i < rarg->count(); i++) {
-        vec->push_back(rarg->at(i) + larg->at(i));
+    } else {
+        if (larg->count() != rarg->count()) {
+            throw "length error";
+        }
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(larg->at(i) + rarg->at(i));
+        }
     }
 
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> BinaryExpr::subtract() {
+std::unique_ptr<Matrix> BinaryExpr::subtract() const {
     std::unique_ptr<Matrix> larg = left->eval();
     std::unique_ptr<Matrix> rarg = right->eval();
     if (rarg->is_nil()) {
@@ -364,23 +362,21 @@ std::unique_ptr<Matrix> BinaryExpr::subtract() {
 
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            vec->push_back(rarg->at(i) - larg->at(0));
+            vec->push_back(larg->at(i) - rarg->at(0));
         }
-        return rarg;
-    }
-
-    if (larg->count() != rarg->count()) {
-        throw "length error";
-    }
-
-    for (unsigned long i = 0; i < rarg->count(); i++) {
-        vec->push_back(rarg->at(i) - larg->at(i));
+    } else {
+        if (larg->count() != rarg->count()) {
+            throw "length error";
+        }
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(larg->at(i) - rarg->at(i));
+        }
     }
 
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> BinaryExpr::multiply() {
+std::unique_ptr<Matrix> BinaryExpr::multiply() const {
     std::unique_ptr<Matrix> larg = left->eval();
     std::unique_ptr<Matrix> rarg = right->eval();
     if (rarg->is_nil()) {
@@ -393,21 +389,19 @@ std::unique_ptr<Matrix> BinaryExpr::multiply() {
         for (unsigned long i = 0; i < rarg->count(); i++) {
             vec->push_back(rarg->at(i) * larg->at(0));
         }
-        return rarg;
-    }
-
-    if (larg->count() != rarg->count()) {
-        throw "length error";
-    }
-
-    for (unsigned long i = 0; i < rarg->count(); i++) {
-        vec->push_back(rarg->at(i) * larg->at(i));
+    } else {
+        if (larg->count() != rarg->count()) {
+            throw "length error";
+        }
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(rarg->at(i) * larg->at(i));
+        }
     }
 
     return std::unique_ptr<Matrix>(new Matrix(vec));
 }
 
-std::unique_ptr<Matrix> BinaryExpr::divide() {
+std::unique_ptr<Matrix> BinaryExpr::divide() const {
     std::unique_ptr<Matrix> larg = left->eval();
     std::unique_ptr<Matrix> rarg = right->eval();
     if (rarg->is_nil()) {
@@ -417,19 +411,16 @@ std::unique_ptr<Matrix> BinaryExpr::divide() {
     std::vector<Number> *vec = new std::vector<Number>();
 
     if (larg->is_scalar()) {
-        Number n = larg->at(0);
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            vec->push_back(rarg->at(i) / n);
+            vec->push_back(larg->at(i) / rarg->at(0));
         }
-        return rarg;
-    }
-
-    if (larg->count() != rarg->count()) {
-        throw "length error";
-    }
-
-    for (unsigned long i = 0; i < rarg->count(); i++) {
-        vec->push_back(rarg->at(i) / larg->at(i));
+    } else {
+        if (larg->count() != rarg->count()) {
+            throw "length error";
+        }
+        for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(larg->at(i) / rarg->at(i));
+        }
     }
 
     return std::unique_ptr<Matrix>(new Matrix(vec));

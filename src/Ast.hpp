@@ -50,14 +50,14 @@ class UnaryExpr : public Expr {
     std::string to_string(int depth = 0);
     ~UnaryExpr();
 
-    std::unique_ptr<Matrix> iota();
-    std::unique_ptr<Matrix> shape();
-    std::unique_ptr<Matrix> pi();
-    std::unique_ptr<Matrix> abs();
-    std::unique_ptr<Matrix> roll();
-    std::unique_ptr<Matrix> negate();
-    std::unique_ptr<Matrix> conjugate();
-    std::unique_ptr<Matrix> signum();
+    std::unique_ptr<Matrix> iota() const;
+    std::unique_ptr<Matrix> shape() const;
+    std::unique_ptr<Matrix> pi() const;
+    std::unique_ptr<Matrix> abs() const;
+    std::unique_ptr<Matrix> roll() const;
+    std::unique_ptr<Matrix> negate() const;
+    std::unique_ptr<Matrix> conjugate() const;
+    std::unique_ptr<Matrix> signum() const;
 
   public:
     UnaryExpr(Token root, Expr *next);
@@ -72,12 +72,12 @@ class BinaryExpr : public Expr {
     std::string to_string(int depth = 0);
     ~BinaryExpr();
 
-    std::unique_ptr<Matrix> reshape();
-    std::unique_ptr<Matrix> deal();
-    std::unique_ptr<Matrix> add();
-    std::unique_ptr<Matrix> subtract();
-    std::unique_ptr<Matrix> multiply();
-    std::unique_ptr<Matrix> divide();
+    std::unique_ptr<Matrix> reshape() const;
+    std::unique_ptr<Matrix> deal() const;
+    std::unique_ptr<Matrix> add() const;
+    std::unique_ptr<Matrix> subtract() const;
+    std::unique_ptr<Matrix> multiply() const;
+    std::unique_ptr<Matrix> divide() const;
 
   public:
     BinaryExpr(Token root, Expr *left, Expr *right);
