@@ -119,7 +119,7 @@ std::unique_ptr<Matrix> UnaryExpr::shape() const {
 
     std::vector<Number> *vec = new std::vector<Number>();
     for (unsigned long i = 0; i < shape->size(); i++) {
-        vec->at(i) = Number((long)shape->at(i));
+        vec->push_back(Number((long)shape->at(i)));
     }
 
     return std::unique_ptr<Matrix>(new Matrix(vec));
@@ -337,6 +337,10 @@ std::unique_ptr<Matrix> BinaryExpr::add() const {
 
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(rarg->at(i) + larg->at(0));
+        }
+    } else if (rarg->is_scalar()) {
+        for (unsigned long i = 0; i < larg->count(); i++) {
             vec->push_back(larg->at(i) + rarg->at(0));
         }
     } else {
@@ -344,7 +348,7 @@ std::unique_ptr<Matrix> BinaryExpr::add() const {
             throw "length error";
         }
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            vec->push_back(larg->at(i) + rarg->at(i));
+            vec->push_back(rarg->at(i) + larg->at(i));
         }
     }
 
@@ -362,6 +366,10 @@ std::unique_ptr<Matrix> BinaryExpr::subtract() const {
 
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(larg->at(0) - rarg->at(i));
+        }
+    } else if (rarg->is_scalar()) {
+        for (unsigned long i = 0; i < larg->count(); i++) {
             vec->push_back(larg->at(i) - rarg->at(0));
         }
     } else {
@@ -369,7 +377,7 @@ std::unique_ptr<Matrix> BinaryExpr::subtract() const {
             throw "length error";
         }
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            vec->push_back(larg->at(i) - rarg->at(i));
+            vec->push_back(rarg->at(i) - larg->at(i));
         }
     }
 
@@ -388,6 +396,10 @@ std::unique_ptr<Matrix> BinaryExpr::multiply() const {
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
             vec->push_back(rarg->at(i) * larg->at(0));
+        }
+    } else if (rarg->is_scalar()) {
+        for (unsigned long i = 0; i < larg->count(); i++) {
+            vec->push_back(larg->at(i) * rarg->at(0));
         }
     } else {
         if (larg->count() != rarg->count()) {
@@ -412,6 +424,10 @@ std::unique_ptr<Matrix> BinaryExpr::divide() const {
 
     if (larg->is_scalar()) {
         for (unsigned long i = 0; i < rarg->count(); i++) {
+            vec->push_back(larg->at(0) / rarg->at(i));
+        }
+    } else if (rarg->is_scalar()) {
+        for (unsigned long i = 0; i < larg->count(); i++) {
             vec->push_back(larg->at(i) / rarg->at(0));
         }
     } else {
@@ -419,7 +435,7 @@ std::unique_ptr<Matrix> BinaryExpr::divide() const {
             throw "length error";
         }
         for (unsigned long i = 0; i < rarg->count(); i++) {
-            vec->push_back(larg->at(i) / rarg->at(i));
+            vec->push_back(rarg->at(i) / larg->at(i));
         }
     }
 
