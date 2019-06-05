@@ -284,8 +284,21 @@ std::unique_ptr<Matrix> BinaryExpr::eval() {
 
 std::unique_ptr<Matrix> BinaryExpr::reshape() const {
     std::unique_ptr<Matrix> larg = left->eval();
-    Shape *shape = larg->get_shape();
-    return NIL;
+    std::unique_ptr<Matrix> rarg = right->eval();
+    if (rarg->is_nil()) {
+        throw "domain error";
+    }
+
+    Shape *s = new std::vector<unsigned int>();
+    unsigned long size = larg->to_shape(s);
+
+    std::vector<Number> *data = new std::vector<Number>();
+    unsigned long count = rarg->count();
+    for (unsigned long i = 0; i < size; i++) {
+        data->push_back(rarg->at(i % count));
+    }
+
+    return std::unique_ptr<Matrix>(new Matrix(s, data));
 }
 
 std::unique_ptr<Matrix> BinaryExpr::deal() const {

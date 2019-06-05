@@ -18,8 +18,7 @@ std::string LexicalError::caused_by() {
     return os.str();
 }
 
-Lexer::Lexer(char *source_)
-    : source{static_cast<std::string>(source_)}, start{0}, end{0} {}
+Lexer::Lexer(char *source_) : source{(std::string)source_}, start{0}, end{0} {}
 
 Lexer::Lexer(std::string source) {
     this->source = source;

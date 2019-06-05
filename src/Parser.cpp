@@ -21,8 +21,8 @@ std::string ParseError::caused_by() {
 }
 
 Parser::Parser(char *source_)
-    : source{static_cast<std::string>(source_)}, lexer{Lexer{source_}},
-      curtok{lexer.lex()}, peektok{lexer.lex()} {}
+    : source{(std::string)source_}, lexer{Lexer{source_}}, curtok{lexer.lex()},
+      peektok{lexer.lex()} {}
 
 void Parser::next() {
     curtok = peektok;
@@ -148,6 +148,7 @@ Number Parser::parse_complex() {
 Expr *Parser::vector() {
     Token tok = curtok;
     std::vector<Number> *vec = new std::vector<Number>();
+
     while (is_number_type(curtok)) {
         if (curtok.type == TokInteger) {
             vec->push_back(parse_integer());

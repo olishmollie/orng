@@ -12,6 +12,7 @@ enum NumberType {
 
 struct Number {
     NumberType type;
+    unsigned long len;
     union {
         long integer;
         long double real;
@@ -22,6 +23,8 @@ struct Number {
     Number(long integer);
     Number(long double real);
     Number(std::complex<long double> complex);
+
+    unsigned long length();
 
     bool is_integer() const;
     bool is_real() const;

@@ -1,5 +1,6 @@
 #include "Matrix.hpp"
 
+#include <iomanip>
 #include <iostream>
 
 Matrix::Matrix() {
@@ -12,14 +13,11 @@ Matrix::Matrix(const Matrix &m) {
     data = m.data;
 }
 
-Matrix::Matrix(unsigned long rows_, unsigned long cols_) {
-    shape = new Shape{rows_, cols_};
-    data =
-        new std::vector<Number>(static_cast<size_t>(rows_ * cols_), Number());
-}
+Matrix::Matrix(Shape *shape_, std::vector<Number> *data_)
+    : shape{shape_}, data{data_} {}
 
 Matrix::Matrix(std::vector<Number> *data_) : data{data_} {
-    shape = new Shape{1, data->size()};
+    shape = new Shape{(unsigned int)data->size()};
 }
 
 Matrix::~Matrix() {
@@ -27,23 +25,27 @@ Matrix::~Matrix() {
     delete data;
 }
 
-bool Matrix::is_scalar() {
-    return shape->size() == 2 && shape->at(0) == 1 && shape->at(1) == 1;
+bool Matrix::is_vector() const {
+    return shape->size() == 1 && shape->at(0) > 1;
 }
 
-bool Matrix::is_integer() {
+bool Matrix::is_scalar() const {
+    return shape->size() == 1 && shape->at(0) == 1;
+}
+
+bool Matrix::is_integer() const {
     return is_scalar() && (*data)[0].type == NumInteger;
 }
 
-bool Matrix::is_real() {
+bool Matrix::is_real() const {
     return is_scalar() && (*data)[0].type == NumReal;
 }
 
-bool Matrix::is_complex() {
+bool Matrix::is_complex() const {
     return is_scalar() && (*data)[0].type == NumReal;
 }
 
-bool Matrix::is_nil() {
+bool Matrix::is_nil() const {
     return shape == nullptr;
 }
 
@@ -56,24 +58,64 @@ Shape *Matrix::get_shape() {
 }
 
 unsigned long Matrix::count() const {
-    unsigned long count = 1;
-    for (int i = 0; i < shape->size(); i++) {
-        count *= shape->at(i);
+    return data->size();
+}
+
+unsigned long Matrix::to_shape(Shape *s) const {
+    unsigned long size = 1;
+    for (unsigned long i = 0; i < count(); i++) {
+        Number n = at(i);
+        if (!n.is_integer() || n.integer < 0) {
+            throw "domain error";
+        }
+        s->push_back(n.integer);
+        size *= n.integer;
     }
-    return count;
+    return size;
 }
 
 std::ostream &operator<<(std::ostream &os, const Matrix &matrix) {
-    // don't print nil value
-    if (matrix.shape == nullptr) {
+    if (matrix.is_nil()) {
         return os;
-    }
-    for (unsigned long i = 0; i < matrix.count(); i++) {
-        os << matrix.at(i);
-        if (i < matrix.count() - 1) {
-            os << " ";
+    } else if (matrix.is_scalar()) {
+        os << matrix.at(0) << std::endl;
+    } else if (matrix.is_vector()) {
+        for (unsigned long i = 0; i < matrix.count(); i++) {
+            os << matrix.at(i);
+            if (i < matrix.count() - 1) {
+                os << " ";
+            } else {
+                os << std::endl;
+            }
+        }
+    } else {
+
+        // HACK: feels like there's a better solution to formatted
+        // output. It finds the maxlength of the matrix, which is
+        // passed to setw for each of its values.
+        unsigned long maxlen = matrix.at(0).length();
+        for (unsigned long i = 0; i < matrix.count(); i++) {
+            if (matrix.at(i).length() > maxlen) {
+                maxlen = matrix.at(i).length();
+            }
+        }
+
+        unsigned long cols = matrix.shape->at(matrix.shape->size() - 1);
+        unsigned long rows = matrix.shape->at(matrix.shape->size() - 2);
+        for (unsigned long j = 1; j <= matrix.count(); j++) {
+            os << std::setw(maxlen) << matrix.at(j - 1);
+            if (j % cols != 0) {
+                os << " ";
+            } else {
+                if (j % (rows * cols) == 0) {
+                    os << std::endl;
+                }
+                if (j - 1 != matrix.count() - 1) {
+                    os << std::endl;
+                }
+            }
         }
     }
-    os << std::endl;
+
     return os;
 }

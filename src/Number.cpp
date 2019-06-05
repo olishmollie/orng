@@ -1,25 +1,42 @@
 #include "Number.hpp"
 
 #include <iomanip>
+#include <string>
+
+static unsigned long get_int_len(long i) {
+    return snprintf(nullptr, 0, "%li", i);
+}
+
+static unsigned long get_real_len(long double d) {
+    return snprintf(nullptr, 0, "%Lf", d);
+}
 
 Number::Number() {
     type = NumInteger;
     integer = 0;
+    len = 1;
 }
 
 Number::Number(long n) {
     type = NumInteger;
     integer = n;
+    len = get_int_len(n);
 }
 
 Number::Number(long double n) {
     type = NumReal;
     real = n;
+    len = get_real_len(n);
 }
 
 Number::Number(std::complex<long double> n) {
     type = NumComplex;
     complex = n;
+    len = get_real_len(n.real()) + get_real_len(n.imag()) + 1;
+}
+
+unsigned long Number::length() {
+    return len;
 }
 
 bool Number::is_integer() const {
@@ -144,7 +161,7 @@ Number &Number::operator+=(Number &n) {
             break;
         case NumComplex:
             type = NumComplex;
-            complex = static_cast<long double>(integer) + n.complex;
+            complex = (long double)integer + n.complex;
         }
         break;
     case NumReal:
@@ -163,7 +180,7 @@ Number &Number::operator+=(Number &n) {
     case NumComplex:
         switch (n.type) {
         case NumInteger:
-            complex += static_cast<long double>(n.integer);
+            complex += (long double)n.integer;
             break;
         case NumReal:
             complex += n.real;
@@ -197,7 +214,7 @@ Number &Number::operator*=(Number &n) {
             break;
         case NumComplex:
             type = NumComplex;
-            complex = static_cast<long double>(integer) * n.complex;
+            complex = (long double)integer * n.complex;
         }
         break;
     case NumReal:
@@ -216,7 +233,7 @@ Number &Number::operator*=(Number &n) {
     case NumComplex:
         switch (n.type) {
         case NumInteger:
-            complex *= static_cast<long double>(n.integer);
+            complex *= (long double)n.integer;
             break;
         case NumReal:
             complex *= n.real;
@@ -237,7 +254,7 @@ Number &Number::operator/=(Number &n) {
         switch (n.type) {
         case NumInteger:
             type = NumReal;
-            real = static_cast<long double>(integer) / n.integer;
+            real = (long double)integer / n.integer;
             break;
         case NumReal:
             type = NumReal;
@@ -245,7 +262,7 @@ Number &Number::operator/=(Number &n) {
             break;
         case NumComplex:
             type = NumComplex;
-            complex = static_cast<long double>(integer) / n.complex;
+            complex = (long double)integer / n.complex;
         }
         break;
     case NumReal:
@@ -264,7 +281,7 @@ Number &Number::operator/=(Number &n) {
     case NumComplex:
         switch (n.type) {
         case NumInteger:
-            complex /= static_cast<long double>(n.integer);
+            complex /= (long double)n.integer;
             break;
         case NumReal:
             complex /= n.real;
@@ -352,6 +369,8 @@ Number Number::abs_val() const {
 }
 
 static void print_int(std::ostream &os, long n) {
+    // int len = snprintf(nullptr, 0, "%li", n);
+    // os.width(len);
     if (n < 0) {
         os << "_";
     }
@@ -359,6 +378,8 @@ static void print_int(std::ostream &os, long n) {
 }
 
 static void print_real(std::ostream &os, long double real) {
+    // int len = snprintf(nullptr, 0, "%Lf", real);
+    // os.width(len);
     if (real < 0) {
         os << "_";
     }
@@ -372,21 +393,20 @@ static void print_complex(std::ostream &os, std::complex<long double> complex) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Number &n) {
-    std::ios_base::fmtflags f(os.flags());
+    // std::ios_base::fmtflags f(os.flags());
 
     switch (n.type) {
     case NumInteger:
         print_int(os, n.integer);
         break;
     case NumReal:
-        // os << std::setprecision(9) << std::fixed;
         print_real(os, n.real);
         break;
     case NumComplex:
         print_complex(os, n.complex);
     }
 
-    os.flags(f);
+    // os.flags(f);
 
     return os;
 }
